@@ -10,15 +10,15 @@ int thermoSO = 8;
 
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoSO);
 
-// Setup LovyanGFX for a generic SPI screen
+// Generic Display Setup
 class LGFX_P4 : public lgfx::LGFX_Device {
-  lgfx::Panel_ST7789 _panel_instance; // Assuming ST7789, adjust if your Hosyond is different
+  lgfx::Panel_ST7789 _panel_instance; 
   lgfx::Bus_SPI       _bus_instance;
 public:
   LGFX_P4() {
     auto cfg = _bus_instance.config();
-    cfg.spi_host = SPI2_HOST; // P4 uses SPI2/SPI3
-    cfg.pin_sclk = 13;        // Adjust these to your actual screen pins
+    cfg.spi_host = SPI2_HOST;
+    cfg.pin_sclk = 13;        
     cfg.pin_mosi = 12;
     cfg.pin_miso = -1;
     cfg.pin_dc   = 14;
@@ -41,15 +41,13 @@ void setup() {
   lcd.setRotation(1);
   lcd.fillScreen(TFT_BLACK);
   lcd.setTextColor(TFT_WHITE);
-  lcd.setTextSize(3);
   lcd.drawString("qPCR Online", 10, 10);
 }
 
 void loop() {
   double temp = thermocouple.readCelsius();
   lcd.setCursor(10, 60);
-  lcd.setTextSize(5);
-  lcd.printf("%.2f C   ", temp);
+  lcd.printf("Temp: %.2f C", temp);
   Serial.printf("Temp: %.2f\n", temp);
   delay(1000);
 }
