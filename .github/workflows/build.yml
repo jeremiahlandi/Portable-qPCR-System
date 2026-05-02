@@ -1,6 +1,6 @@
 name: P4 qPCR Cloud Build
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -19,10 +19,7 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build Project
-        run: pio run
-
-      - name: Upload Firmware Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: qPCR-Firmware
-          path: .pio/build/esp32-p4-ev-board/firmware.bin
+        # We run prune to ensure a fresh download of the 3.0.4 framework
+        run: |
+          pio system prune --force
+          pio run
