@@ -1,11 +1,16 @@
 name: P4 qPCR Cloud Build
 
-on: [push]
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'platformio.ini'
+      - '.github/workflows/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,8 +23,5 @@ jobs:
       - name: Install PlatformIO
         run: pip install --upgrade platformio
 
-      - name: Build Project
-        # We run prune to ensure a fresh download of the 3.0.4 framework
-        run: |
-          pio system prune --force
-          pio run
+      - name: Build qPCR Firmware
+        run: pio run
