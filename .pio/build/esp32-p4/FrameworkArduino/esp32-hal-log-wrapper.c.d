@@ -1,0 +1,23 @@
+.pio/build/esp32-p4/FrameworkArduino/esp32-hal-log-wrapper.c.o: \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-log-wrapper.c \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/qio_qspi/include/sdkconfig.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_rom/include/esp_rom_sys.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/soc/esp32p4/include/soc/reset_reasons.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/soc/esp32p4/include/soc/soc_caps.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_config.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_level.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_common/include/esp_assert.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/newlib/platform_include/assert.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_color.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_buffer.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_timestamp.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_write.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_format.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_args.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_common/include/esp_macros.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_common/include/esp_assert.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_common/include/esp_compiler.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_log_attr.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/esp_common/include/esp_attr.h \
+ /home/jeremiahlandi/.platformio/packages/framework-arduinoespressif32-libs/esp32p4_es/include/log/include/esp_private/log_attr.h
