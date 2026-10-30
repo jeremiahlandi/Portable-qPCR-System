@@ -1,0 +1,10 @@
+{
+  "name": "core",
+  "version": "0.0.0",
+  "description": "Board-agnostic control core for the Portable qPCR instrument. No hardware calls; everything goes through the interfaces in core/hal.",
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "flags": ["-Iinclude"]
+  }
+}
