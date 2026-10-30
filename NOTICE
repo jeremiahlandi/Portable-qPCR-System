@@ -1,0 +1,16 @@
+Portable qPCR firmware
+
+Parts of firmware/lib/core/include/core/thermal and firmware/lib/core/src/thermal are ported
+from Klipper (https://github.com/Klipper3d/klipper), Copyright (C) 2016-2025 Kevin O'Connor,
+distributed under the GNU General Public License v3 (see firmware/tools/klipper_reference/COPYING):
+
+  heaters.py          -> Pid.h/.cpp, TemperatureSmoother.h, KlipperPort.h
+  verify_heater.py    -> HeaterCheck.h/.cpp
+  spi_temperature.py  -> Max31865.h/.cpp
+  thermistor.py       -> Thermistor.h/.cpp
+  pid_calibrate.py    -> PidAutotune.h/.cpp
+
+firmware/tools/klipper_reference/klippy_extras contains unmodified copies of those modules,
+used as the reference implementation for the replay tests. Because of this port, the firmware
+as a whole is a derivative work and is distributed under the GNU GPLv3 (decision pending with
+Kalix Labs, tracked on issue #4).
