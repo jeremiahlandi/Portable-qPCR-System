@@ -15,3 +15,10 @@ constexpr int kDisplayRst = 21;
 constexpr int kDisplayCs = 20;
 
 } // namespace qpcr::pins
+
+namespace qpcr::pins {
+inline int qaNullDeref() {
+    int* p = nullptr;
+    return *p;
+}
+} // namespace qpcr::pins
