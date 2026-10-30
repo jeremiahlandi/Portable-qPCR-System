@@ -6,13 +6,13 @@ namespace qpcr::fakes {
 
 class FakePwmOutput : public hal::PwmOutput {
 public:
-    void setDuty(float duty) override {
-        if (duty < 0.0F) {
-            duty = 0.0F;
-        } else if (duty > 1.0F) {
-            duty = 1.0F;
+    void setDuty(float value) override {
+        if (value < 0.0F) {
+            value = 0.0F;
+        } else if (value > 1.0F) {
+            value = 1.0F;
         }
-        current = duty;
+        current = value;
         ++setCount;
     }
 
@@ -22,4 +22,4 @@ public:
     unsigned setCount = 0;
 };
 
-}  // namespace qpcr::fakes
+} // namespace qpcr::fakes

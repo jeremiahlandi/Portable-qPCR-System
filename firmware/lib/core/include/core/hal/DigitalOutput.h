@@ -10,4 +10,4 @@ public:
     [[nodiscard]] virtual bool isOn() const = 0;
 };
 
-}  // namespace qpcr::hal
+} // namespace qpcr::hal

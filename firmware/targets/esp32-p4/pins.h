@@ -14,4 +14,4 @@ constexpr int kDisplayDc = 22;
 constexpr int kDisplayRst = 21;
 constexpr int kDisplayCs = 20;
 
-}  // namespace qpcr::pins
+} // namespace qpcr::pins
