@@ -12,4 +12,4 @@ public:
     std::uint32_t now = 0;
 };
 
-}  // namespace qpcr::fakes
+} // namespace qpcr::fakes

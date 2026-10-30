@@ -14,7 +14,8 @@ void test_sensor_starts_not_ready() {
     fakes::FakeTemperatureSensor sensor;
     const auto reading = sensor.read();
     TEST_ASSERT_FALSE(reading.valid());
-    TEST_ASSERT_EQUAL(static_cast<int>(hal::SensorFault::NotReady), static_cast<int>(reading.fault));
+    TEST_ASSERT_EQUAL(static_cast<int>(hal::SensorFault::NotReady),
+                      static_cast<int>(reading.fault));
 }
 
 void test_sensor_set_and_fault() {
@@ -50,7 +51,7 @@ void test_clock_elapsed_handles_wrap() {
     fakes::FakeClock clock;
     clock.now = 0xFFFFFFF0U;
     const auto start = clock.millis();
-    clock.advance(0x20U);  // wraps past zero
+    clock.advance(0x20U); // wraps past zero
     TEST_ASSERT_EQUAL_UINT32(0x20U, clock.elapsedSince(start));
 }
 

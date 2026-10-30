@@ -18,6 +18,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  static-analysis:
+    name: Static analysis (clang-format, clang-tidy, cppcheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y clang-format-18 clang-tidy-18
+      - run: pip install --upgrade platformio
+      - name: clang-format
+        run: |
+          mapfile -t files < <(git ls-files 'firmware/**/*.cpp' 'firmware/**/*.h' 'firmware/**/*.hpp')
+          clang-format-18 --dry-run -Werror "${files[@]}"
+      - name: clang-tidy (core, host flags)
+        run: |
+          mapfile -t files < <(git ls-files 'firmware/lib/**/*.cpp' 'firmware/lib/**/*.h')
+          clang-tidy-18 --quiet "${files[@]}" -- -std=gnu++17 -x c++ -Ifirmware/lib/core/include -Ifirmware/lib/fakes/include
+      - name: cppcheck (pio check)
+        run: pio check --fail-on-defect=high --fail-on-defect=medium
+
   test-native:
     name: Host unit tests (native)
     runs-on: ubuntu-latest
@@ -32,7 +54,7 @@ jobs:
           path: ~/.platformio
           key: pio-native-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
       - run: pip install --upgrade platformio
-      - name: Unit tests
+      - name: Unit tests (ASan + UBSan, warnings as errors)
         run: pio test -e native
 
   build-firmware:

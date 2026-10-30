@@ -1,0 +1,6 @@
+# cppcheck suppressions (issue #20). One per line: <id>[:<file>[:<line>]]
+# Prefer inline "// cppcheck-suppress <id>" with a reason next to the code.
+missingIncludeSystem
+unusedFunction
+# Unity test entry points are called by the runner, not by name.
+unusedFunction:firmware/test/*

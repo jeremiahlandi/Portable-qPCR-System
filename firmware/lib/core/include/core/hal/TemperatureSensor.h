@@ -7,11 +7,11 @@ namespace qpcr::hal {
 /// Why a temperature reading is not usable. The safety layer (issue #5) acts on these.
 enum class SensorFault : std::uint8_t {
     None,
-    Open,        ///< sensor disconnected / open circuit
-    Short,       ///< sensor shorted
-    OutOfRange,  ///< value outside the sensor's physical range
-    NotReady,    ///< no conversion completed yet
-    Bus,         ///< communication failure with the sensor chip
+    Open,       ///< sensor disconnected / open circuit
+    Short,      ///< sensor shorted
+    OutOfRange, ///< value outside the sensor's physical range
+    NotReady,   ///< no conversion completed yet
+    Bus,        ///< communication failure with the sensor chip
 };
 
 struct TemperatureReading {
@@ -29,4 +29,4 @@ public:
     [[nodiscard]] virtual TemperatureReading read() = 0;
 };
 
-}  // namespace qpcr::hal
+} // namespace qpcr::hal

@@ -15,4 +15,4 @@ public:
     [[nodiscard]] std::uint32_t elapsedSince(std::uint32_t since) const { return millis() - since; }
 };
 
-}  // namespace qpcr::hal
+} // namespace qpcr::hal

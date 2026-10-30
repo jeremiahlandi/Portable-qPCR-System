@@ -18,4 +18,4 @@ public:
     unsigned readCount = 0;
 };
 
-}  // namespace qpcr::fakes
+} // namespace qpcr::fakes

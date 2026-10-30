@@ -6,10 +6,10 @@ namespace qpcr::hal {
 class PwmOutput {
 public:
     virtual ~PwmOutput() = default;
-    virtual void setDuty(float duty) = 0;
+    virtual void setDuty(float value) = 0;
     [[nodiscard]] virtual float duty() const = 0;
     /// Convenience: force the output off. Used by the safe state.
     void off() { setDuty(0.0F); }
 };
 
-}  // namespace qpcr::hal
+} // namespace qpcr::hal
