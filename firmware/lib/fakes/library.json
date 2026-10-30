@@ -1,0 +1,11 @@
+{
+  "name": "fakes",
+  "version": "0.0.0",
+  "description": "In-memory implementations of the core/hal interfaces for host tests and simulation.",
+  "frameworks": "*",
+  "platforms": "*",
+  "dependencies": [{"name": "core"}],
+  "build": {
+    "flags": ["-Iinclude"]
+  }
+}

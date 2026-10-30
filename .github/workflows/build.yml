@@ -1,36 +1,62 @@
-name: P4 qPCR Cloud Build
+name: Build
+
+# Builds every PlatformIO environment and runs the host unit tests on every
+# push to main and every pull request. The "Build" check is the required
+# status check for main (see .cursor/rules/pre-pr-quality-gate.mdc).
 
 on:
   push:
-    branches: [ main, master ]
-    paths:
-      - 'src/**'
-      - 'platformio.ini'
-      - '.github/workflows/**'
-  # --- ADD THIS LINE ---
-  workflow_dispatch: 
-  # ---------------------
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  test-native:
+    name: Host unit tests (native)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-native-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - run: pip install --upgrade platformio
+      - name: Unit tests
+        run: pio test -e native
 
-      - name: Install PlatformIO
-        run: pip install --upgrade platformio
-
-      - name: Build qPCR Firmware
-        run: pio run
-
-      - name: Upload Firmware Artifact
+  build-firmware:
+    name: Build firmware (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [esp32-p4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - run: pip install --upgrade platformio
+      - name: Build
+        run: pio run -e ${{ matrix.env }}
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: qPCR-Firmware
-          path: .pio/build/esp32-p4/firmware.bin
+          name: firmware-${{ matrix.env }}
+          path: .pio/build/${{ matrix.env }}/firmware.bin
