@@ -6,3 +6,5 @@ namespace qpcr {
 [[nodiscard]] const char* firmwareVersion();
 
 } // namespace qpcr
+
+#define QA_BAD_CONSTANT 42
