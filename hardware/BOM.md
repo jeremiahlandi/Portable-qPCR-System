@@ -11,7 +11,7 @@ Status: `in use` = in the current design, `planned` = chosen by an issue but not
 
 | Part | Qty | Purpose (why) | Vendor | Part number | Link | Unit cost | Lead | Status | Owner | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Waveshare ESP32-P4 module dev kit (P4 + ESP32-C6, speaker) | 1 | Single controller: display, control loops, optics, storage; C6 gives Wi-Fi 6 and BLE | Amazon / Waveshare | ESP32-P4-Module-DEV-KIT | https://www.amazon.com/dp/B0F2MP483W | | | in use | #2 | LI-DL-004 |
+| Waveshare ESP32-P4-Module-DEV-KIT (P4NRW32X + ESP32-C6, 16 MB flash, 32 MB PSRAM) | 1 | Single controller: display, control loops, optics, storage; C6 gives Wi-Fi 6 and BLE; 28 free GPIOs on a 40-pin header | Waveshare (also Amazon) | SKU 30560, ESP32-P4-Module-DEV-KIT (basic kit) | https://www.amazon.com/dp/B0F2MP483W | 19.99 | in stock | in use | #2 | LI-DL-004; kits B/C add a DSI touch display, not needed with the ILI9488 |
 | 3.5" TFT ILI9488 480×320 SPI shield | 1 | Operator touchscreen; verified at 20 MHz over SPI | Amazon | | (Base Unit BOM sheet) | | | in use | #3, #11 | |
 | Nextion 3.2" HMI NX4024T032 | 1 | Legacy display; needs the Kalix HMI project file to be usable | Amazon | NX4024T032 | (Base Unit BOM sheet) | 34.49 | | retired | #2 | Replaced by the ILI9488 on the P4; no HMI file |
 | Micro SD card module | 1 | Run records and logs (if the onboard slot is not used) | Amazon | | (Base Unit BOM sheet) | 2.99 | | alternative | #14 | P4 kit has an onboard slot |
