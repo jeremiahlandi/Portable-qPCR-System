@@ -13,3 +13,6 @@ public:
 };
 
 } // namespace qpcr::fakes
+
+
+void   badly_formatted( ){int x=1;if(x){x++;}}
