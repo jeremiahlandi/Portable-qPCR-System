@@ -1,0 +1,11 @@
+# PlatformIO build output and downloaded libraries
+.pio/
+
+# Python
+__pycache__/
+*.pyc
+
+# editors
+.idea/
+.vscode/
+.DS_Store

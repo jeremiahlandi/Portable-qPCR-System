@@ -1,0 +1,66 @@
+---
+description: Every branch, commit, and PR starts from a GitHub issue and stays linked to it natively. Defines the one branching convention used by humans, cloud agents, and the PO-review hook.
+alwaysApply: true
+---
+
+# Ticket-Driven Development
+
+No work without a ticket. Every branch is created **from** a GitHub issue, every commit cites it, every PR closes it. This is the single convention for this repo (decision `LI-DL-003`, issue #7).
+
+## 1. Ticket first
+
+- Before creating a branch, there MUST be a GitHub issue that is compliant with `.cursor/rules/github-ticketing.mdc` (10-section body, Type + Priority, native parent).
+- If the user asks for work that has no ticket, draft and file the ticket first (draft-first approval per `github-issue-creation.mdc`), then branch. Never start on "I'll file it later."
+- One issue → one branch → one PR. If a branch grows a second concern, cut a second ticket and branch.
+
+## 2. Branch: created from the issue, named by it
+
+**Canonical (humans, local Cursor):**
+
+```bash
+gh issue develop <n> --base main --checkout
+```
+
+This uses GitHub's native issue → branch link (visible in the issue's **Development** sidebar) and GitHub's default name **`<n>-<slug>`**, e.g. `6-po-review-hook-robust-path-parsing`. Do not add a `feature/`, `issue/`, or other prefix; do not hand-name branches when `gh issue develop` can.
+
+**Cloud agents** are required by their runtime to use a `cursor/…-<suffix>` name. In that case the issue number goes immediately after the slash:
+
+```
+cursor/<n>-<slug>-<suffix>      e.g. cursor/6-po-review-hook-7f95
+```
+
+The native link for such a branch comes from the PR (`Closes #<n>`, see §4), which also appears in the Development sidebar.
+
+**Claude Code cloud sessions** are assigned a fixed `claude/<slug>` branch name by their runtime that cannot carry the issue number. Treat such a branch like a cloud-agent branch: the PR body's `Closes #<n>` is the native link, and every commit subject still ends with `(#<n>)`. The PO-review hook does not fire on these branches; request the PO review explicitly.
+
+**Recognition rule (used by the hook and reviewers):** the issue number is the first token after the last optional `<prefix>/`:
+
+```
+^([A-Za-z0-9._-]+/)?([0-9]+)-      → group 2 is the issue number
+```
+
+Branches that do not match (e.g. `main`, `cursor/some-slug-7f95` with no number) are not ticket branches: the PO-review hook ignores them and a PR from them must not be opened.
+
+## 3. Commits
+
+Conventional Commits per `semver-major-bump-policy.mdc`, with the issue number as a trailing `(#<n>)` on the subject:
+
+```
+fix(hooks): robust change fingerprint for PO review hook (#6)
+feat(case-studies): filterable index grid (#12)
+```
+
+## 4. Pull requests
+
+- PR body MUST contain a closing keyword for the driving issue: `Closes #<n>` (or `Fixes` / `Resolves`). This links the PR natively and closes the issue on merge.
+- PR title follows the commit-subject format above.
+- A PR may close more than one issue only when they were explicitly scoped together on the tickets.
+- Before the first push and before marking a PR ready for review, run **`scripts/lint-gate.sh`** (PlatformIO build + static check). See `.cursor/rules/pre-pr-quality-gate.mdc`. Do not merge while the CI **Build** job is red.
+
+## 5. PO review
+
+The `stop` hook (`.cursor/hooks/po-review-followup.sh`) fires on ticket branches and passes `#<n>` to the Product Owner QA prompt (`po-feature-qa.mdc`), which loads acceptance criteria from that issue. This chain only works when §2 is followed.
+
+## Grandfathered
+
+`claude/youthful-gauss-t1gn1u` (the session that adopted these rules) predates this rule and is not renamed.
