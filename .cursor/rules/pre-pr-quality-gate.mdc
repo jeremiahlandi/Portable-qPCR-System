@@ -9,13 +9,13 @@ CI builds every PlatformIO environment on every pull request. Catch failures loc
 
 ## Required command
 
-From the repo root (PlatformIO installed, `pip install platformio` or `uv tool install platformio`):
+From the repo root, with [uv](https://docs.astral.sh/uv/) installed (the only prerequisite; it installs PlatformIO, clang-format, clang-tidy and cppcheck from `uv.lock`):
 
 ```bash
 scripts/lint-gate.sh
 ```
 
-It runs `pio run` for every environment in `platformio.ini` and `pio check` (cppcheck) on the firmware sources, the same surface area as the CI **Build** job.
+It runs clang-format, clang-tidy, cppcheck, the Klipper replay check, `pio test -e native` and `pio run` for every environment in `platformio.ini`, the same surface area as the CI **Build** workflow. Python tooling is always invoked through `uv run`; never `pip install` into the system Python.
 
 ## When to run
 

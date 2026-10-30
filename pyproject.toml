@@ -1,0 +1,17 @@
+[project]
+name = "portable-qpcr-tooling"
+version = "0.0.0"
+description = "Python tooling for the Portable qPCR firmware: PlatformIO, static analysis, replay harness. Managed with uv."
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "platformio>=6.1.16",
+    "clang-format>=18.1,<19",
+    "clang-tidy>=18.1,<19",
+    "cppcheck>=1.5",  # PyPI wrapper 1.5.x ships cppcheck 2.22
+]
+
+[tool.uv]
+package = false

@@ -1,8 +1,10 @@
 name: Build
 
-# Builds every PlatformIO environment and runs the host unit tests on every
-# push to main and every pull request. The "Build" check is the required
-# status check for main (see .cursor/rules/pre-pr-quality-gate.mdc).
+# Static analysis, host unit tests and a build of every PlatformIO environment on every
+# push to main and every pull request. Python tooling (PlatformIO, clang-format,
+# clang-tidy, cppcheck) is installed by uv from uv.lock, so CI and the local gate
+# (scripts/lint-gate.sh) run identical versions. The "Build" jobs are the required status
+# checks for main (see .cursor/rules/pre-pr-quality-gate.mdc).
 
 on:
   push:
@@ -24,21 +26,24 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.12'
-      - run: sudo apt-get update && sudo apt-get install -y clang-format-18 clang-tidy-18
-      - run: pip install --upgrade platformio
+          enable-cache: true
+      - run: uv sync --frozen
       - name: clang-format
         run: |
           mapfile -t files < <(git ls-files 'firmware/**/*.cpp' 'firmware/**/*.h' 'firmware/**/*.hpp')
-          clang-format-18 --dry-run -Werror "${files[@]}"
+          uv run clang-format --dry-run -Werror "${files[@]}"
       - name: clang-tidy (core, host flags)
         run: |
           mapfile -t files < <(git ls-files 'firmware/lib/**/*.cpp' 'firmware/lib/**/*.h')
-          clang-tidy-18 --quiet "${files[@]}" -- -std=gnu++17 -x c++ -Ifirmware/lib/core/include -Ifirmware/lib/fakes/include
-      - name: cppcheck (pio check)
-        run: pio check --fail-on-defect=high --fail-on-defect=medium
+          uv run clang-tidy --quiet "${files[@]}" -- -std=gnu++17 -x c++ -Ifirmware/lib/core/include -Ifirmware/lib/fakes/include
+      - name: cppcheck
+        run: |
+          uv run cppcheck --enable=warning,style,performance,portability --inline-suppr \
+            --suppressions-list=.cppcheck-suppressions --std=c++17 --error-exitcode=1 --quiet \
+            -Ifirmware/lib/core/include -Ifirmware/lib/fakes/include \
+            firmware/lib firmware/targets firmware/test
 
   test-native:
     name: Host unit tests (native)
@@ -46,18 +51,19 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.12'
+          enable-cache: true
       - uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-native-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - run: pip install --upgrade platformio
+          key: pio-native-${{ runner.os }}-${{ hashFiles('platformio.ini', 'uv.lock') }}
+      - run: uv sync --frozen
       - name: Replay data matches the Klipper originals
-        run: python3 -I firmware/tools/klipper_reference/replay.py --check
+        if: hashFiles('firmware/tools/klipper_reference/replay.py') != ''
+        run: uv run python -I firmware/tools/klipper_reference/replay.py --check
       - name: Unit tests (ASan + UBSan, warnings as errors)
-        run: pio test -e native
+        run: uv run pio test -e native
 
   build-firmware:
     name: Build firmware (${{ matrix.env }})
@@ -69,16 +75,16 @@ jobs:
         env: [esp32-p4]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.12'
+          enable-cache: true
       - uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - run: pip install --upgrade platformio
+          key: pio-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('platformio.ini', 'uv.lock') }}
+      - run: uv sync --frozen
       - name: Build
-        run: pio run -e ${{ matrix.env }}
+        run: uv run pio run -e ${{ matrix.env }}
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
