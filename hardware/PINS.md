@@ -3,13 +3,63 @@
 Single source of truth for every signal (rule: `.cursor/rules/pin-mapping.mdc`). The firmware reads
 its pins from `firmware/targets/<board>/pins.h`, which must match this file.
 
-## Board: Waveshare ESP32-P4-Module-DEV-KIT (`firmware/targets/esp32-p4`)
+## Board: Waveshare ESP32-P4-WIFI6 3.5inch Touch LCD development board (`firmware/targets/esp32-p4`)
 
-Decision LI-DL-004 (issue #2). Module ESP32-P4NRW32X (32 MB PSRAM in package) with onboard
+Decision LI-DL-004, revised 2026-10-30 (issue #2): the 3.5-inch 320 × 480 SPI touch display ships
+with this board and connects to it over the board's own ribbon (FPC) connector, so the eight
+hand-wired display lines of the previous board go away. Same ESP32-P4 + ESP32-C6 (Wi-Fi 6, BLE 5)
+combination, plus an OV5647 5 MP camera, microphone and speaker.
+
+### Fixed by the board (display, touch, camera, radio)
+
+The display SPI lines, the touch controller (I2C), the backlight and the camera are routed by
+the board to the ribbon connectors; their GPIO numbers are set by Waveshare and must be read
+from the board's "Pin Definition" figure, which was not available in the authoring session.
+
+| Function | GPIO(s) | Source |
+| --- | --- | --- |
+| Display SPI (SCK, MOSI, CS, DC, RST) | tbd | Waveshare wiki, Pin Definition |
+| Display backlight | tbd | Waveshare wiki |
+| Touch controller I2C (SDA, SCL, INT, RST) | tbd | Waveshare wiki |
+| Display controller IC / touch IC | tbd (confirm from the wiki before #11 picks the LovyanGFX panel driver) | Waveshare wiki |
+| Camera (MIPI-CSI), microphone, speaker codec | board internal | Waveshare wiki |
+| ESP32-C6 SDIO link | board internal | Waveshare wiki |
+
+### Signals on the free header
+
+Every instrument signal below moves to whichever GPIOs this board leaves free; the numbers
+assigned for the previous board (section "Retired boards") no longer apply. Fill the GPIO column
+from the Pin Definition figure, keeping the same owners.
+
+| Signal | GPIO | Dir | Board pin / rail | Wire | Owner | Verified |
+| --- | --- | --- | --- | --- | --- | --- |
+| SPI MISO / SCK / MOSI for MAX31865 | tbd | | header | | #6 | planned (#6) |
+| MAX31865 CS (block PT1000) | tbd | out | header | | #6 | planned (#6) |
+| H-bridge PWM A (heat) | tbd (LEDC) | out | header | | #7 | planned (#7) |
+| H-bridge PWM B (cool) | tbd (LEDC) | out | header | | #7 | planned (#7) |
+| H-bridge enable | tbd | out | header | | #7 | planned (#7) |
+| Heatsink fan PWM | tbd (LEDC) | out | header | | #7 | planned (#7) |
+| Lid heater PWM | tbd (LEDC) | out | header | | #8 | planned (#8) |
+| Lid NTC | tbd (ADC) | in | header | | #8 | planned (#8) |
+| Status LED red / yellow / blue | tbd ×3 | out | header | | #13 | planned (#13) |
+| Buzzer | tbd | out | header | | #13 | planned (#13) |
+| Excitation LED | tbd | out | header | | #18 | planned (#18) |
+| I2C SDA / SCL (RTC, AS7341) | tbd (may share the touch I2C bus) | bus | header | | #14, #18 | planned |
+| SD card | onboard slot if present | | | | #14 | confirm on the wiki |
+| Wi-Fi / BLE | onboard C6 | | | | #15 | board feature |
+
+Pin notes carried over from the ESP32-P4 datasheet (confirm): GPIO36 to GPIO38 are strapping
+pins; ADC1 is GPIO16 to 23, ADC2 is GPIO49 to 54; LEDC PWM routes to any GPIO.
+
+## Retired boards
+
+### Waveshare ESP32-P4-Module-DEV-KIT (previous board, retired 2026-10-30)
+
+Superseded by the Touch LCD board above; kept because its display wiring was verified on hardware. Module ESP32-P4NRW32X (32 MB PSRAM in package) with onboard
 16 MB NOR flash and an ESP32-C6 for Wi-Fi 6 / BLE over SDIO. Waveshare SKU 30560.
 Pin definition: Waveshare product page, "Pin Definition" figure (copied below).
 
-### 40-pin header (the only user GPIOs; 28 programmable)
+#### 40-pin header (the only user GPIOs; 28 programmable)
 
 Physical order, top to bottom, as printed on the board.
 
@@ -49,7 +99,7 @@ Pin notes (from the ESP32-P4 datasheet; confirm before relying on them):
   which is free on the P4 because the radio lives on the C6.
 - LEDC PWM can be routed to any GPIO.
 
-### Signals
+#### Signals
 
 | Signal | GPIO | Dir | Board pin / rail | Wire | Owner | Verified |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -85,13 +135,12 @@ Pin notes (from the ESP32-P4 datasheet; confirm before relying on them):
 | Wi-Fi / BLE | onboard C6 via SDIO | | not on header | | #15 | board feature |
 | Serial console | 37 / 38 | | Type-C UART | | | board feature |
 
-### Reserved by the board
+#### Reserved by the board
 
 Every GPIO not listed on the 40-pin header above is used by the board and is not available:
 ESP32-C6 SDIO link, RJ45 Ethernet PHY, TF card slot (SDIO 3.0), MIPI-DSI and MIPI-CSI
 connectors, USB 2.0 OTG, onboard microphone and speaker codec, RTC battery, PoE header.
 Source: Waveshare product page ("28 remaining programmable GPIOs" on the 2×20 header).
 
-## Retired boards
 
 - Arduino Mega 2560 + classic ESP32 (Kalix legacy, `Firmware/Legacy_Archive`): pin assignments are in the sketch headers; not maintained.
