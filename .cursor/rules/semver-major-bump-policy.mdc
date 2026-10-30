@@ -1,0 +1,30 @@
+---
+description: Semantic-versioning commit prefix policy (fix:/feat:/feat!:) for this repo, including what counts as a major bump. Apply when writing commit messages.
+alwaysApply: true
+---
+
+# Semver Commit Prefix Policy
+
+This repo uses [Conventional Commits](https://www.conventionalcommits.org/) so the firmware version can be computed automatically from commits on `main` (Release Please, `release-please-config.json`). Prefix every commit subject with the correct type so the history is release-ready from the start:
+
+- `fix: ...` → **patch** — a backward-compatible bug fix.
+- `feat: ...` → **minor** — a backward-compatible feature or incremental improvement.
+- `feat!: ...` / `fix!: ...` (or a `BREAKING CHANGE:` footer) → **major**.
+- `chore:`, `docs:`, `refactor:`, `test:`, `style:`, `perf:`, `build:`, `ci:` → no version bump.
+
+Every subject ends with the driving issue in parentheses, e.g. `fix(hooks): robust change fingerprint (#6)` — see `ticket-driven-development.mdc`.
+
+## Deciding major vs. minor/patch
+
+For an instrument, use blast radius and compatibility together as the test: **would an operator notice one screen or one step misbehaving, or would the device be on new, unproven ground, or would existing protocols, stored data, calibration or the app protocol stop working?** The former is minor/patch; the latter is major.
+
+Use `feat!:`/`fix!:` with a `BREAKING CHANGE:` footer (explaining the blast radius, not just what changed) for:
+
+- **Changing the controller board or the hardware interface** the whole firmware depends on.
+- **Incompatible changes to stored data, protocol files, calibration format or the app message protocol** — anything that makes existing devices, runs or app versions stop working without migration.
+- **Changes to the safety layer's behavior** (cutoff limits, fault handling, safe state), because of the regression risk to already-verified protection.
+- **Large-scale removal of existing code, replaced with substantial new code** — e.g. rewriting the thermal controller or the protocol runner rather than patching it in place.
+
+Everything else — the vast majority of PRs, including routine bug fixes, new screens, and typical incremental feature work — stays `fix:`/`feat:` (patch/minor). Don't reach for `feat!:` just because a PR touched many files or took a while; reserve it for the "changing the ground the instrument stands on" cases above.
+
+If a PR/commit's real-world impact doesn't match what its type would normally imply, say so explicitly in the commit body/footer rather than silently picking the "safe" prefix — an automated release PR is editable before merge, but only if the reasoning is visible.

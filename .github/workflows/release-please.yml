@@ -1,0 +1,38 @@
+name: Release Please
+
+# Automated semantic versioning from Conventional Commits. Every push to
+# main refreshes a "chore(main): release x.y.z" pull request that bumps
+# version.txt, writes CHANGELOG.md and, once merged, tags the release.
+# One short job (about one runner minute) per push.
+#
+# Token: with the default GITHUB_TOKEN, GitHub does not run other workflows
+# on the pull requests this job opens, so the Build check that branch
+# protection requires never appears on the release PR. Store a fine-grained
+# personal access token (contents + pull requests, read/write, this repo
+# only) as the RELEASE_PLEASE_TOKEN secret to get CI on release PRs; until
+# then, run the CI workflow on the release branch by hand from the Actions
+# tab (workflow_dispatch) before merging.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release PR / tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

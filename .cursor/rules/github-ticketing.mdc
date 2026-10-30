@@ -1,0 +1,166 @@
+---
+description: How Product Owner specs become GitHub issues for this repository
+alwaysApply: true
+---
+
+# GitHub Ticketing
+
+Specs live as **GitHub issues** (in `jeremiahlandi/Portable-qPCR-System` or repo target specified by user), NEVER Linear or any other issue tracker.
+
+- Creating or updating a GitHub issue requires explicit authorization from the user. Draft the issue body for review first and wait for approval before writing to GitHub.
+- ALWAYS use GitHub issues via `gh issue` CLI or official tools. NEVER create tickets anywhere else.
+- Every branch/PR starts from an issue filed under these rules — see `ticket-driven-development.mdc` for the branch, commit, and PR linkage convention.
+- Hierarchy (Epic → child issues) is tracked with GitHub's **native sub-issues**, never with labels or body text alone. See §0.
+- Ticket Type is tracked with GitHub's **native Issue Types** where available; on this user-owned repo they are not (organization-only), so the Type **label** below is the required fallback. See §1.
+- EVERY issue MUST have exactly one **Ticket Type** (Issue Type or fallback label) and exactly one **Priority** label from the closed taxonomy below.
+- The label taxonomy is **closed and pre-seeded** on the repo. NEVER create, rename, recolor, or delete labels ad hoc, and NEVER substitute a GitHub default (`enhancement`, `documentation`, `question`, …) for a Type label. To add a label: edit the relevant table in this rule in a PR, then seed it with the exact name, color, and description from the table.
+
+---
+
+## 0. Hierarchy — native sub-issues (hard requirement)
+
+- Every **Epic** is a parent issue. Every non-epic issue MUST be attached as a **sub-issue** of exactly one parent (an epic, or a user-story/task for `sub-task` items) at the moment it is filed. An issue with no parent is non-compliant unless the user explicitly approves a standalone issue.
+- Do NOT express hierarchy through labels, `[Epic]`/`[Task]` title prefixes, or a "Parent epic: #n" line alone. A text mention is fine as a convenience, but the sub-issue link is the source of truth; GitHub renders the parent on each child and a progress bar (`subIssuesSummary`) on the epic.
+- Epics hold scope, page inventory, and the list of children; acceptance criteria and implementation tasks live on the child issues.
+- Attach a child (REST, uses the issue's numeric `id`, not its number):
+
+```bash
+R=repos/jeremiahlandi/Portable-qPCR-System
+child_id=$(gh api $R/issues/<child#> --jq .id)
+gh api -X POST $R/issues/<parent#>/sub_issues -F sub_issue_id=$child_id
+```
+
+- Verify (GraphQL):
+
+```bash
+gh api graphql -f query='{ repository(owner:"jeremiahlandi", name:"Portable-qPCR-System"){
+  issue(number:<child#>){ parent{ number title } }
+  epic: issue(number:<parent#>){ subIssuesSummary{ total completed } subIssues(first:50){ nodes{ number title } } } } }'
+```
+
+- To move a child to a different parent: `gh api -X DELETE $R/issues/<old-parent#>/sub_issue -F sub_issue_id=<id>`, then add it to the new parent as above. Only do this with explicit user authorization.
+- Current tree: none filed yet. The first epic for this repo is the Portable qPCR instrument; file it before any child issue.
+
+---
+
+## 1. Ticket Types & Labels
+
+**Canonical mechanism: GitHub Issue Types.** Issue Types are defined at the organization level (Settings → Planning → Issue types) and are unavailable on user-owned repositories such as this one today (`repository.issueTypes` is `null`). If the repo is transferred to an organization, define one Issue Type per row below (same names), set the type on every open issue, and the Type *labels* in this table are retired (the rows stay as the definition of each type).
+
+**Fallback while the repo is user-owned:** every issue created MUST apply exactly one primary **Type** label from this standard taxonomy:
+
+| Type Label | Color | Ticket Type | Purpose / Description |
+|---|---|---|---|
+| `epic` | `3E4B9E` | **Epic** | Large body of work spanning multiple sprints/milestones, broken into smaller user stories or tasks. |
+| `user-story` | `0052CC` | **User Story / Feature** | New user-facing capability or requirement written from the user's perspective with observable AC. |
+| `bug` | `D73A4A` | **Bug / Defect** | Unexpected error or defect requiring troubleshooting and a fix. |
+| `task` | `0E8A16` | **Task** | General non-user-facing technical work (e.g. environment config, CI/CD, docs update). |
+| `sub-task` | `5319E7` | **Sub-task** | Granular, actionable piece broken off from a larger story or task. |
+| `spike` | `BFD4F2` | **Spike / Research** | Time-boxed investigative research or prototyping to reduce technical uncertainty before building. |
+| `tech debt` | `C2E0C6` | **Tech Debt / Refactor** | Code cleanup, refactoring, or maintainability improvement without changing external behavior. |
+
+### Area labels
+
+Add one or more `area:*` labels when the component area is known (all use color `1D76DB`). The taxonomy mirrors the module split of the firmware and the instrument subsystems:
+
+| Area Label | Covers |
+|---|---|
+| `area:thermal` | Block and lid temperature control, PID, Peltier drive, calibration |
+| `area:safety` | Sensor fault detection, overtemperature cutoff, heater verification, watchdog, safe state |
+| `area:optics` | Excitation, detection, fluorescence reads, Ct calling, sample calls |
+| `area:protocol` | Protocol model, step runner, loops, melt curves, presets |
+| `area:ui` | Touchscreen screens, LEDs, buzzer |
+| `area:comms` | App link, message protocol, WiFi/BLE, time sync, firmware update |
+| `area:data` | Run records, raw data storage, logs, export |
+| `area:platform` | Board-agnostic core, hardware interface, board targets, build system |
+| `area:hardware` | Electronics, BOM, mechanical, block, enclosure |
+| `area:testing` | Host unit tests, replay tests, bench validation, fault injection |
+| `area:ci` | GitHub Actions, build pipeline, release automation |
+
+If no `area:*` label fits, file the issue without one and propose a new row in this table via PR. Do not invent a one-off name.
+
+---
+
+## 2. Priority Taxonomy & Labels
+
+Every issue created MUST apply exactly one **Priority** label:
+
+| Priority Label | Color | Priority Level | SLA / Guidance |
+|---|---|---|---|
+| `P0 - Emergency` | `000000` | **P0 (Emergency)** | Critical blocker / production outage — drop everything and fix immediately. |
+| `P1 - High` | `B60205` | **P1 (High)** | High priority — planned for immediate next work. |
+| `P2 - Medium` | `FBCA04` | **P2 (Medium)** | Standard backlog priority. |
+| `P3 - Low` | `0E8A16` | **P3 (Low)** | Low priority / deferred work. |
+| `P4 - Nice to Have` | `C5DEF5` | **P4 (Nice to Have)** | Optional improvement — no timeline commitment. |
+
+### Verifying the label set
+
+Before filing, confirm the labels you intend to use exist exactly as named:
+
+```bash
+gh label list --repo jeremiahlandi/Portable-qPCR-System --limit 100 --json name --jq '.[].name' | sort
+```
+
+If a taxonomy label is missing or its color/description has drifted from the tables above, stop and report it (or, with explicit user authorization, repair it with `gh label create` / `gh label edit` using the exact values from the table). Never work around a missing label by picking a different one.
+
+---
+
+## 3. Required Ticket Structure (10-Section Template)
+
+Every ticket body MUST follow this comprehensive structured template:
+
+```markdown
+## 1. Executive Summary & Goal
+Brief high-level summary of what this ticket accomplishes and why.
+
+## 2. User Story / Objective
+As a [role], I want [goal], so that [value].
+
+## 3. Background & Context
+Relevant context, history, design links, or related issues. Parent: #<n> (informational — the native sub-issue link is the source of truth, see §0).
+
+## 4. Scope & Non-Scope
+- **In Scope:** Explicitly what will be built / investigated.
+- **Out of Scope:** Explicitly what will NOT be done in this ticket.
+
+## 5. Acceptance Criteria
+- [ ] Testable, observable condition
+- [ ] Error state handling
+- [ ] Empty / fallback state handling
+
+## 6. Data & State Requirements
+Inputs, schema fields, validation rules, persisted data, or API contracts.
+
+## 7. Dependencies & Blockers
+Prerequisite tickets, external assets, or technical dependencies (or "None").
+
+## 8. Actionable Tasks
+- [ ] Task step 1
+- [ ] Task step 2
+
+## 9. Assumptions & Decision References
+- [ ] Assumption to confirm with user
+Decision reference: LI-DL-### (or "none applies")
+
+## 10. QA & Verification Protocol
+Concrete steps for how to verify this work once completed.
+```
+
+---
+
+## 4. Guardrails & Rules
+
+- **Mandatory Hierarchy:** Never leave a non-epic issue without a native parent (§0). Filing is not complete until the sub-issue link is verified.
+- **Mandatory Type & Priority:** Never create a ticket without exactly one **Type** (Issue Type where available; otherwise the label `epic`, `user-story`, `bug`, `task`, `sub-task`, `spike`, `tech debt`) and exactly one **Priority** label (`P0 - Emergency` … `P4 - Nice to Have`). A ticket missing either is non-compliant and must be fixed with `gh issue edit --add-label` before it is considered filed.
+- **Closed Taxonomy:** Only labels defined in §1 and §2 may be applied or created. Any new label requires a change to this rule first.
+- **Authorization Required:** Draft the full ticket body and present it to the user for sign-off before executing `gh issue create`.
+- **No Guessed Intent:** Cite `LI-DL-###` decision references (this repo's decision log) when applicable. Never invent business intent. Decisions for this repo are numbered `LI-DL-###` in a shared sequence with the other Landi Industries repos; none have been recorded for this repo yet. Candidate decisions to record first: controller board, block sensor, GPL acceptance for ported Klipper code.
+- **Platform Constraint:** NEVER create tickets on Linear, Jira, or any platform other than GitHub Issues.
+
+---
+
+## Feature QA Verification
+
+When verifying delivered work, check it against the acceptance criteria as written in the ticket. Report each criterion as met or not met with the observed behavior.
+
+

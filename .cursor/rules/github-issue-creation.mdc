@@ -1,0 +1,62 @@
+---
+description: Mandatory GitHub issue creation when the user asks for a GitHub ticket/issue. Draft-first per github-ticketing.mdc; once approved, never substitute a repo markdown draft for the live issue.
+alwaysApply: true
+---
+
+# GitHub Issue Creation (mandatory)
+
+When the user asks to **create a GitHub ticket**, **create a GitHub issue**, **file a GitHub issue**, or equivalent, the required deliverable is a **real GitHub issue** in the repository — not a markdown file, not a Linear issue, not a PR description, and not a "draft" committed to the repo unless the user **explicitly** opts into that fallback.
+
+Authorization follows `.cursor/rules/github-ticketing.mdc`: **draft first, then wait for the user's approval before writing to GitHub.** This rule governs what happens once that approval is given — the issue must actually be filed, verified, and linked.
+
+## Required workflow
+
+1. **Draft the issue body** (10-section template, Type + Priority, and the intended **parent issue** from `github-ticketing.mdc`) and present it to the user in chat. **Wait for approval.** Do not run `gh issue create` yet.
+2. **On approval, create the issue** using `gh issue create` (preferred) or the GitHub REST API.
+3. **Apply labels from the closed taxonomy** in `github-ticketing.mdc` — exactly one Type, exactly one Priority, plus `area:*` as applicable. Never create a label on the fly; if a taxonomy label is missing from the repo, stop and report it.
+4. **Attach it as a sub-issue of its parent** (`github-ticketing.mdc` §0) unless it is itself an epic or the user approved a standalone issue. Verify with the GraphQL `parent` query.
+5. **Verify success** — capture and report the issue **number and URL** (e.g. `#131`, `https://github.com/.../issues/131`) and its parent (`#131 → parent #2`).
+6. **Confirm in the response** with the link. Do not say "created a ticket" unless steps 4–5 succeeded.
+
+If the user has already approved the body (e.g. "looks good, file it", or they supplied the final text themselves), skip straight to step 2.
+
+## Forbidden substitutes (unless user explicitly agrees)
+
+- ❌ Saving the body only to `docs/backlog/*.md` and calling it "the ticket"
+- ❌ Committing issue text to the repo without a live GitHub issue
+- ❌ Creating a Linear issue when the user asked for GitHub
+- ❌ Opening a PR whose only purpose is to hold issue text
+- ❌ Implying the issue exists when creation failed
+- ❌ Filing the issue before the user has approved the drafted body
+
+While a draft is awaiting approval, say so plainly — do not claim an issue was filed.
+
+## When GitHub API / `gh` is blocked
+
+Cloud agents may hit `Resource not accessible by integration` if the token lacks **issues: write**. When that happens:
+
+1. **State clearly:** "I did **not** create a GitHub issue" — never bury this.
+2. **Report the exact error** (permission / label missing / etc.).
+3. **Retry** after fixing auth if you can (do not "fix" a missing-label error by inventing or substituting a label).
+4. **Give the user a copy-paste command** that creates the issue from the prepared body (`gh issue create --body-file … --label …`).
+5. **Optional repo draft** only as a **secondary** artifact for the user's one-click filing — label it "draft only, not filed" and still treat the task as **incomplete** until the user confirms the issue number or permissions are fixed.
+
+Do not mark the task complete until either:
+- a GitHub issue URL/number is confirmed, **or**
+- the user explicitly accepts a draft-only fallback for this request.
+
+## Issue body quality
+
+- Include the Type/Priority the user requested (e.g. `tech debt`, `P4 - Nice to Have`); if they did not specify, propose both in the draft for approval.
+- Label names must match the taxonomy tables in `github-ticketing.mdc` exactly (case, spacing, `area:` prefix). Verify with `gh label list` before filing.
+- Structure long audits with summary, gaps, tasks/checkboxes, and references to related issues.
+
+## Verification command
+
+After creation:
+
+```bash
+gh issue view <number> --repo <owner/repo> --json url,title,labels
+```
+
+Report the URL to the user in the final response.
