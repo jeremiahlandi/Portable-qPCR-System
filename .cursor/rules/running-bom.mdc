@@ -1,0 +1,28 @@
+---
+description: Every part the instrument uses is recorded in hardware/BOM.md with why it is used and where to buy it. Any change that adds, swaps or removes a part updates the BOM in the same PR.
+alwaysApply: true
+---
+
+# Running bill of materials (always current)
+
+`hardware/BOM.md` is the engineering record of every part in the instrument: what it is, why it is there, where it comes from, what it costs and how long it takes to get. The purchasing spreadsheet ("Base Unit BOM") is the ordering record; the repo BOM is what the design actually uses, and it is updated first.
+
+## Rules
+
+- **Same PR as the change.** A PR that adds a part, swaps one for another, changes a quantity per unit, or retires a part updates `hardware/BOM.md` in the same PR. A part that exists only in a ticket, a chat or the spreadsheet is non-compliant.
+- **Every row answers "why".** The purpose column states what the part does in this design and, for a substitution, why the previous part was replaced (lead time, rating, cost, defect). "Needed" is not a reason.
+- **Every row has a source.** Vendor, part number and a link. For a generic part with no stable link, name the specification well enough to re-buy it (dimensions, rating, connector).
+- **Alternatives stay listed.** A qualified alternative gets its own row with status `alternative` and the row it replaces. Rejected parts get status `retired` with the reason, so the same mistake is not re-ordered.
+- **Lead time is a column.** Anything over four weeks is flagged; a build-date ticket (#16) must not depend on an unflagged long-lead part.
+- **Quantities are per unit.** Pack sizes and order quantities belong in the spreadsheet; the BOM says how many go into one instrument.
+- **Tickets cite the BOM.** An issue that changes hardware links the rows it changes in its Data & State Requirements section.
+
+## Columns
+
+Part | Qty per unit | Purpose (why) | Vendor | Part number | Link | Unit cost | Lead time | Status (in use / alternative / planned / retired) | Owner issue | Notes
+
+## PR checklist
+
+- [ ] `hardware/BOM.md` updated (rows added, status changed, reason given)
+- [ ] Spreadsheet updated or a note left for purchasing
+- [ ] Long-lead parts flagged

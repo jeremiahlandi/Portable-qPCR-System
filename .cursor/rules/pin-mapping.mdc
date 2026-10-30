@@ -1,0 +1,23 @@
+---
+description: Every signal on the instrument is recorded in hardware/PINS.md and mirrored in the firmware pin header. Any change that adds, moves or removes a signal updates both in the same PR.
+alwaysApply: true
+---
+
+# Pin mapping (always current)
+
+`hardware/PINS.md` is the single source of truth for how every signal is wired: which GPIO, which board header pin, which wire color, which issue owns it, and whether it has been verified on hardware. The firmware target reads its pins from one header per board (`firmware/targets/<board>/pins.h`); the two must never disagree.
+
+## Rules
+
+- **Same PR, both files.** A PR that adds, moves or removes a signal (sensor, output, bus, display line, LED, button) updates `hardware/PINS.md` and the board's `pins.h` together. A pin number that appears only in code is non-compliant.
+- **Reserved pins are listed, not remembered.** Pins the board uses internally (radio companion link, Ethernet, SD slot, USB, audio, strapping and boot pins) live in the "Reserved by the board" table. Assign a new signal only to a pin not in that table; if the table is incomplete for the board, fill it from the vendor documentation first.
+- **Verified means measured.** The `Verified` column holds the date and commit where the signal was confirmed working on hardware. A planned assignment says `planned (#<issue>)`. Never mark a pin verified from a datasheet alone.
+- **Wire colors are part of the map.** Keep the color column filled for every wired signal so a second builder can check a unit against the document.
+- **Board change = new table.** A new controller board gets its own section (one per `firmware/targets/<board>`), not an edit of the previous board's rows.
+- **Tickets cite the map.** An issue that touches wiring links the rows it changes in its Data & State Requirements section.
+
+## PR checklist
+
+- [ ] `hardware/PINS.md` updated (signal rows, reserved table, verification column)
+- [ ] `firmware/targets/<board>/pins.h` matches the document
+- [ ] No new signal on a reserved pin
