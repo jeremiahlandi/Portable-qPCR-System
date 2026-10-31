@@ -3,6 +3,7 @@
 #include <LovyanGFX.hpp>
 
 #include "core/Version.h"
+#include "core/ui/VersionBadge.h"
 
 #include "pins.h"
 
@@ -34,6 +35,20 @@ public:
 
 LGFX_P4 lcd;
 
+// Firmware version in the bottom-right corner of every screen (issue #28). Uses the
+// display's reported size, so it stays in the corner after setRotation().
+void drawVersionBadge() {
+    char label[32];
+    qpcr::ui::versionBadgeLabel(label, sizeof label, qpcr::firmwareVersion());
+    lcd.setTextSize(2);
+    lcd.setTextColor(TFT_WHITE, TFT_BLACK);
+    const qpcr::ui::TextMetrics metrics{static_cast<int>(lcd.textWidth(label)),
+                                        static_cast<int>(lcd.fontHeight())};
+    const qpcr::ui::Point origin = qpcr::ui::versionBadgeOrigin(lcd.width(), lcd.height(), metrics);
+    lcd.setCursor(origin.x, origin.y);
+    lcd.print(label);
+}
+
 void setup() {
     Serial.begin(115200);
     delay(1000);
@@ -58,11 +73,7 @@ void setup() {
         lcd.setCursor(20, 140);
         lcd.print("Screen: ILI9488");
 
-        lcd.setTextColor(TFT_WHITE);
-        lcd.setTextSize(2);
-        lcd.setCursor(20, 220);
-        lcd.print("FW ");
-        lcd.print(qpcr::firmwareVersion());
+        drawVersionBadge();
     }
 }
 
