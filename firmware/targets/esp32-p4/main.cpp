@@ -4,6 +4,7 @@
 #include <LovyanGFX.hpp>
 
 #include "core/Version.h"
+#include "core/ui/VersionBadge.h"
 
 #include "pins.h"
 
@@ -59,6 +60,20 @@ void setBacklight(uint8_t percent) {
     }
 }
 
+// Firmware version in the bottom-right corner of every screen (issue #28). Uses the
+// display's reported size, so it stays in the corner after setRotation().
+void drawVersionBadge() {
+    char label[32];
+    qpcr::ui::versionBadgeLabel(label, sizeof label, qpcr::firmwareVersion());
+    lcd.setTextSize(2);
+    lcd.setTextColor(TFT_WHITE, TFT_BLACK);
+    const qpcr::ui::TextMetrics metrics{static_cast<int>(lcd.textWidth(label)),
+                                        static_cast<int>(lcd.fontHeight())};
+    const qpcr::ui::Point origin = qpcr::ui::versionBadgeOrigin(lcd.width(), lcd.height(), metrics);
+    lcd.setCursor(origin.x, origin.y);
+    lcd.print(label);
+}
+
 void drawBringUpScreen() {
     lcd.setRotation(1); // landscape, 480x320
     lcd.fillScreen(TFT_BLACK);
@@ -76,12 +91,6 @@ void drawBringUpScreen() {
     lcd.setCursor(20, 140);
     lcd.print("Screen: ST7796");
 
-    lcd.setTextColor(TFT_WHITE);
-    lcd.setTextSize(2);
-    lcd.setCursor(20, 220);
-    lcd.print("FW ");
-    lcd.print(qpcr::firmwareVersion());
-
     // Colour-order and orientation check: R, G, B bars along the bottom, marker at the origin.
     lcd.fillRect(20, 260, 140, 40, TFT_RED);
     lcd.fillRect(170, 260, 140, 40, TFT_GREEN);
@@ -95,6 +104,8 @@ void drawBringUpScreen() {
     lcd.setCursor(324, 276);
     lcd.print("BLUE");
     lcd.fillTriangle(0, 0, 16, 0, 0, 16, TFT_YELLOW); // top-left origin marker
+
+    drawVersionBadge();
 }
 
 } // namespace
