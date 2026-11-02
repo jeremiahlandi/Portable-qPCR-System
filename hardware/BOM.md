@@ -23,8 +23,8 @@ Status: `in use` = in the current design, `planned` = chosen by an issue but not
 
 | Part | Qty | Purpose (why) | Vendor | Part number | Link | Unit cost | Lead | Status | Owner | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Peltier module 30×30×3.85 mm, 3 A | 1 | Heats and cools the block | Digi-Key | 102-4045-ND | | 26.79 | 13 wk **(long)** | in use | #7, #16 | Verify Vmax against the supply rail; substitute an in-stock 12 V TEC for November |
-| Heat sink, half brick 58×61×22.9 mm | 1 | Hot-side sink for the Peltier | Digi-Key | ATS1506-ND | | 17.74 | 8 wk **(long)** | in use | #16 | Any 40 mm CPU cooler is the in-stock alternative |
+| Peltier module CUI CP303385H, 30×30×3.85 mm, 3 A | 1 | Heats and cools the block | Digi-Key | CP303385H (Digi-Key 102-4045-ND) | https://www.digikey.com/en/products/detail/cui-devices/CP303385H/6217103 | 26.79 | 13 wk **(long)** | in use | #7, #16 | Verify Vmax against the supply rail; substitute an in-stock 12 V TEC for November |
+| Heat sink ATS-1146-C1-R0, half brick 58×61×22.9 mm | 1 | Hot-side sink for the Peltier | Digi-Key | ATS-1146-C1-R0 (Digi-Key ATS1506-ND) | https://www.digikey.com/en/products/detail/advanced-thermal-solutions-inc/ATS-1146-C1-R0/4146488 | 17.74 | 8 wk **(long)** | in use | #16 | Any 40 mm CPU cooler is the in-stock alternative |
 | Fan 40×10 mm 12 V dual ball bearing | 1 | Heat sink airflow | Amazon | YDM4010B12 | (Base Unit BOM sheet) | 6.99 | | in use | #7 | Set the fan voltage to 12 V or buy 24 V fans |
 | Fan guard 40 mm | 1 | Finger guard | Amazon | | (Base Unit BOM sheet) | 1.50 | | in use | #16 | |
 | Thermal paste Corsair XTM70 | as needed | Peltier to sink and block interface | Amazon | | (Base Unit BOM sheet) | | | in use | #16 | |

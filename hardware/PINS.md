@@ -10,20 +10,36 @@ with this board and connects to it over the board's own ribbon (FPC) connector, 
 hand-wired display lines of the previous board go away. Same ESP32-P4 + ESP32-C6 (Wi-Fi 6, BLE 5)
 combination, plus an OV5647 5 MP camera, microphone and speaker.
 
-### Fixed by the board (display, touch, camera, radio)
+### Fixed by the board (display, touch, camera, radio, storage, audio)
 
-The display SPI lines, the touch controller (I2C), the backlight and the camera are routed by
-the board to the ribbon connectors; their GPIO numbers are set by Waveshare and must be read
-from the board's "Pin Definition" figure, which was not available in the authoring session.
+Source: Waveshare's Arduino board library for this board,
+`examples/arduino/libraries/Waveshare_LCD35/src/lcd35_board.h` in
+[waveshareteam/ESP32-P4-WIFI6-Touch-LCD-3.5](https://github.com/waveshareteam/ESP32-P4-WIFI6-Touch-LCD-3.5)
+(schematic PDF in the same repo under `schematic/`). Display bring-up verified on hardware
+2026-11-01 with `firmware/targets/esp32-p4` (ST7796 over SPI, LovyanGFX `Panel_ST7796`,
+`offset_rotation = 0`, `invert = true`, 40 MHz; vendor uses 80 MHz).
 
-| Function | GPIO(s) | Source |
+| Function | GPIO(s) | Notes |
 | --- | --- | --- |
-| Display SPI (SCK, MOSI, CS, DC, RST) | tbd | Waveshare wiki, Pin Definition |
-| Display backlight | tbd | Waveshare wiki |
-| Touch controller I2C (SDA, SCL, INT, RST) | tbd | Waveshare wiki |
-| Display controller IC / touch IC | tbd (confirm from the wiki before #11 picks the LovyanGFX panel driver) | Waveshare wiki |
-| Camera (MIPI-CSI), microphone, speaker codec | board internal | Waveshare wiki |
-| ESP32-C6 SDIO link | board internal | Waveshare wiki |
+| Display controller | ST7796, 320 × 480 IPS, SPI | vendor Arduino_GFX config: IPS, rotation 4 (X mirrored) |
+| Display SPI MOSI | 20 | |
+| Display SPI SCK | 21 | |
+| Display CS | 23 | |
+| Display DC | 26 | |
+| Display RST | 27 | |
+| Display backlight | 28 | LEDC PWM 5 kHz, 10-bit (vendor) |
+| Display SPI MISO | not wired | panel is write-only |
+| Touch controller | FT6336 (FT5x06 family), I2C | INT / RST GPIOs not in the vendor header; read from the schematic before #11 |
+| I2C SDA / SCL | 7 / 8 | board bus: touch, AXP2101 PMIC, ES8311 codec; also on the header |
+| TF card (SDIO 4-bit) CLK / CMD | 43 / 44 | #14 |
+| TF card D0 / D1 / D2 / D3 | 39 / 40 / 41 / 42 | #14 |
+| Audio I2S MCLK / BCLK / LRCK | 13 / 12 / 10 | ES8311 codec |
+| Audio I2S DOUT (P4 → codec) / DIN (codec → P4) | 9 / 11 | ES8311 codec |
+| Audio amplifier enable (NS4150B PA) | 53 | active high |
+| Camera (MIPI-CSI 2-lane), microphone, speaker | board internal | Waveshare wiki |
+| ESP32-C6 SDIO link | board internal | not published by the vendor |
+| USB-to-UART (CH343, `/dev/ttyACM0`) | UART0 GPIO37 / 38 | programming and `Serial` console (`ARDUINO_USB_CDC_ON_BOOT=0`) |
+| USB OTG 2.0 HS | native USB | second Type-C port |
 
 ### Signals on the free header
 
