@@ -41,31 +41,65 @@ Source: Waveshare's Arduino board library for this board,
 | USB-to-UART (CH343, `/dev/ttyACM0`) | UART0 GPIO37 / 38 | programming and `Serial` console (`ARDUINO_USB_CDC_ON_BOOT=0`) |
 | USB OTG 2.0 HS | native USB | second Type-C port |
 
+### J6 "Interface" header (2 × 16, 2.54 mm)
+
+Read from the Waveshare schematic (`schematic/ESP32-P4-WIFI6-Touch-LCD-3.5-schematic.pdf`,
+connector J6) on 2026-11-01. Pin 1 is 3V3, pin 2 is USB 5V; odd pins run down one row, even
+pins down the other.
+
+| Odd pin | Net | Even pin | Net |
+| --- | --- | --- | --- |
+| 1 | 3V3 | 2 | USB0_5V |
+| 3 | GND | 4 | GND |
+| 5 | GPIO7 (I2C SDA, board bus) | 6 | USB1P1_N (GPIO24, USB OTG) |
+| 7 | GPIO8 (I2C SCL, board bus) | 8 | USB1P1_P (GPIO25, USB OTG) |
+| 9 | GPIO2 | 10 | GND |
+| 11 | GPIO3 | 12 | VBAT |
+| 13 | GPIO4 | 14 | GPIO34 (strapping) |
+| 15 | GPIO5 | 16 | GPIO35 (strapping, BOOT button, UART auto-reset) |
+| 17 | GPIO30 | 18 | GPIO36 (strapping) |
+| 19 | GPIO31 | 20 | GPIO51 (ADC2) |
+| 21 | GPIO32 | 22 | GPIO52 (ADC2) |
+| 23 | GPIO33 | 24 | GND |
+| 25 | C6_U0RXD (ESP32-C6) | 26 | ESP_LDO_VO4 |
+| 27 | C6_U0TXD (ESP32-C6) | 28 | GPIO48 |
+| 29 | C6_IO9 (ESP32-C6) | 30 | GPIO47 |
+| 31 | GND | 32 | GPIO46 |
+
+Usable for instrument signals: GPIO2, 3, 4, 5, 30, 31, 32, 33, 46, 47, 48 (digital / LEDC PWM) and
+GPIO51, 52 (the only ADC-capable header pins, ADC2). Do not use GPIO7/8 (board I2C), GPIO24/25
+(USB OTG), GPIO34/35/36 (strapping; 35 is also BOOT and the CH343 auto-reset line) or the C6 pins.
+
 ### Signals on the free header
 
 Every instrument signal below moves to whichever GPIOs this board leaves free; the numbers
 assigned for the previous board (section "Retired boards") no longer apply. Fill the GPIO column
-from the Pin Definition figure, keeping the same owners.
+from the J6 table above, keeping the same owners.
 
 | Signal | GPIO | Dir | Board pin / rail | Wire | Owner | Verified |
 | --- | --- | --- | --- | --- | --- | --- |
-| SPI MISO / SCK / MOSI for MAX31865 | tbd | | header | | #6 | planned (#6) |
-| MAX31865 CS (block PT1000) | tbd | out | header | | #6 | planned (#6) |
-| H-bridge PWM A (heat) | tbd (LEDC) | out | header | | #7 | planned (#7) |
-| H-bridge PWM B (cool) | tbd (LEDC) | out | header | | #7 | planned (#7) |
-| H-bridge enable | tbd | out | header | | #7 | planned (#7) |
-| Heatsink fan PWM | tbd (LEDC) | out | header | | #7 | planned (#7) |
-| Lid heater PWM | tbd (LEDC) | out | header | | #8 | planned (#8) |
-| Lid NTC | tbd (ADC) | in | header | | #8 | planned (#8) |
-| Status LED red / yellow / blue | tbd ×3 | out | header | | #13 | planned (#13) |
-| Buzzer | tbd | out | header | | #13 | planned (#13) |
-| Excitation LED | tbd | out | header | | #18 | planned (#18) |
-| I2C SDA / SCL (RTC, AS7341) | tbd (may share the touch I2C bus) | bus | header | | #14, #18 | planned |
-| SD card | onboard slot if present | | | | #14 | confirm on the wiki |
+| SPI MISO / SCK / MOSI for MAX31865 | tbd | | J6 | | #6 | planned (#6) |
+| MAX31865 CS (block PT1000) | tbd | out | J6 | | #6 | planned (#6) |
+| H-bridge RPWM (heat), IBT_2 / BTS7960 | 4 (LEDC) | out | J6 pin 13 | | #7 | assigned 2026-11-01, not yet driven |
+| H-bridge LPWM (cool), IBT_2 / BTS7960 | 5 (LEDC) | out | J6 pin 15 | | #7 | assigned 2026-11-01, not yet driven |
+| H-bridge enable (R_EN and L_EN tied together) | 3 | out | J6 pin 11 | | #7 | assigned 2026-11-01, not yet driven |
+| H-bridge R_IS (heat current sense, optional) | 51 (ADC2) | in | J6 pin 20 | | #7 | assigned 2026-11-01 |
+| H-bridge L_IS (cool current sense, optional) | 52 (ADC2) | in | J6 pin 22 | | #7 | assigned 2026-11-01 |
+| H-bridge logic VCC / GND | 3V3 / GND | power | J6 pin 1 / pin 3 | | #7 | VCC at 3V3 so the module's 74HC244 switches on 3.3 V logic |
+| Heatsink fan PWM | tbd (LEDC) | out | J6 | | #7 | planned (#7) |
+| Lid heater PWM | tbd (LEDC) | out | J6 | | #8 | planned (#8) |
+| Lid NTC | tbd (ADC2: only 51/52 remain) | in | J6 | | #8 | planned (#8); conflicts with the IS lines if both are wanted |
+| Status LED red / yellow / blue | tbd ×3 | out | J6 | | #13 | planned (#13) |
+| Buzzer | tbd | out | J6 | | #13 | planned (#13) |
+| Excitation LED | tbd | out | J6 | | #18 | planned (#18) |
+| I2C SDA / SCL (RTC, AS7341) | 7 / 8 (board I2C bus, shared with touch and PMIC) | bus | J6 pins 5 / 7 | | #14, #18 | planned |
+| SD card | onboard TF slot (SDIO, GPIO39–44) | | | | #14 | board feature |
 | Wi-Fi / BLE | onboard C6 | | | | #15 | board feature |
 
-Pin notes carried over from the ESP32-P4 datasheet (confirm): GPIO36 to GPIO38 are strapping
-pins; ADC1 is GPIO16 to 23, ADC2 is GPIO49 to 54; LEDC PWM routes to any GPIO.
+Pin notes from the ESP32-P4 datasheet and the ESP-IDF GPIO reference: GPIO34 to GPIO38 are
+strapping pins; ADC1 is GPIO16 to 23 (none on J6), ADC2 is GPIO49 to 54 (J6 has 51 and 52);
+LEDC PWM routes to any GPIO. The IBT_2 power side (B+/B−, M+/M−) is fed from the Peltier
+supply, never from the board's 5 V; its logic GND ties the supply ground to the P4 ground.
 
 ## Retired boards
 
