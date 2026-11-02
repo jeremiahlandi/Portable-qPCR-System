@@ -1,0 +1,18 @@
+Reference harness for the Klipper thermal port (issue #4)
+=========================================================
+
+klippy_extras/ holds unmodified copies of five Klipper modules (GNU GPLv3, see COPYING):
+heaters.py, verify_heater.py, pid_calibrate.py, thermistor.py, spi_temperature.py, taken from
+https://github.com/Klipper3d/klipper master on 2026-10-30. bus.py and adc_temperature.py are
+import stubs. Nothing here runs on the instrument.
+
+replay.py drives the original Python classes through the same inputs as the C++ unit tests
+(firmware/test/test_thermal) and writes the expected outputs to firmware/test/data/expected.
+The C++ tests compare against those files.
+
+    python3 -I firmware/tools/klipper_reference/replay.py            # regenerate expected data
+    python3 -I firmware/tools/klipper_reference/replay.py --check    # verify committed data (CI)
+
+Traces in firmware/test/data/traces are synthesized by replay.py with a simple first-order
+plant driven by the original Klipper PID, then replayed open-loop through both
+implementations.
