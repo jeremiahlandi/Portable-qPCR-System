@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/jeremiahlandi/Portable-qPCR-System/compare/v1.2.0...v1.2.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* **platform:** use the 16 MB partition table so the 1.2.0 image boots ([#37](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/37)) ([#46](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/46)) ([423aa90](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/423aa90e39f1d04e7ad9feb30970449e89db4332))
+* **ui:** keep the status bar clock ticking after a screen change ([#37](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/37)) ([#47](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/47)) ([c9ab635](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/c9ab635e918ad1bc962c60c5c31223302d19b156))
+
 ## [1.2.0](https://github.com/jeremiahlandi/Portable-qPCR-System/compare/v1.1.0...v1.2.0) (2026-11-04)
 
 
