@@ -13,7 +13,7 @@ namespace qpcr::pins {
 // Display: ST7796 320x480 IPS over SPI (board-routed). Vendor runs the bus at 80 MHz.
 constexpr int kDisplaySck = 21;
 constexpr int kDisplayMosi = 20;
-constexpr int kDisplayMiso = -1; // not wired
+constexpr int kDisplayMiso = -1; // schematic routes LCD_MISO to GPIO22; unused (panel not read)
 constexpr int kDisplayCs = 23;
 constexpr int kDisplayDc = 26;
 constexpr int kDisplayRst = 27;
@@ -22,6 +22,11 @@ constexpr int kDisplayBacklight = 28; // LEDC PWM, 5 kHz
 // Board I2C bus (FT6336 touch, AXP2101 PMIC, ES8311 codec; also exposed on the header).
 constexpr int kI2cSda = 7;
 constexpr int kI2cScl = 8;
+
+// FT6336 touch controller (schematic J14): reset on GPIO29 with a 10 k pull-down, so the chip
+// stays in reset until the firmware drives it high; interrupt on GPIO50 (4.7 k pull-up), unused.
+constexpr int kTouchRst = 29;
+constexpr int kTouchInt = 50;
 
 // TF card slot, SDIO 4-bit (issue #14).
 constexpr int kSdClk = 43;
