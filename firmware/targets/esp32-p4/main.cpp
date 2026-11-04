@@ -54,7 +54,7 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
     Serial.print("Portable qPCR firmware ");
-    Serial.println(qpcr::firmwareVersion());
+    Serial.println(qpcr::firmwareBuild());
     Serial.print("Peltier H-bridge: ");
     Serial.println(peltierOk ? "safe state, drive disabled" : "LEDC attach FAILED, drive inert");
 
