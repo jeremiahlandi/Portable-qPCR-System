@@ -9,6 +9,10 @@ namespace {
 
 constexpr lv_opa_t kDimmed = LV_OPA_40;
 
+// The bar on the screen being shown. Every screen builds its own bar (ui_nav), and LVGL
+// deletes the previous screen only after the slide animation, by which time these pointers
+// already belong to the new bar. onDeleted therefore checks the bar it is called for.
+lv_obj_t* currentBar = nullptr;
 lv_obj_t* clockLabel = nullptr;
 lv_obj_t* wifiLabel = nullptr;
 lv_obj_t* bluetoothLabel = nullptr;
@@ -43,7 +47,11 @@ lv_obj_t* makeIcon(lv_obj_t* parent, const char* symbol) {
     return label;
 }
 
-void onDeleted(lv_event_t* /*e*/) {
+void onDeleted(lv_event_t* e) {
+    if (lv_event_get_target_obj(e) != currentBar) {
+        return; // an older screen's bar going away: the labels belong to the new one
+    }
+    currentBar = nullptr;
     clockLabel = nullptr;
     wifiLabel = nullptr;
     bluetoothLabel = nullptr;
@@ -62,6 +70,7 @@ lv_obj_t* uiStatusBarCreate(lv_obj_t* screen) {
     lv_obj_set_style_pad_left(bar, theme::kPad, 0);
     lv_obj_set_style_pad_right(bar, theme::kPad, 0);
     lv_obj_add_event_cb(bar, onDeleted, LV_EVENT_DELETE, nullptr);
+    currentBar = bar;
 
     clockLabel = makeIcon(bar, "--:--");
     lv_obj_align(clockLabel, LV_ALIGN_LEFT_MID, 0, 0);
