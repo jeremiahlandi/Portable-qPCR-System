@@ -15,11 +15,12 @@ alwaysApply: true
 - **Alternatives stay listed.** A qualified alternative gets its own row with status `alternative` and the row it replaces. Rejected parts get status `retired` with the reason, so the same mistake is not re-ordered.
 - **Lead time is a column.** Anything over four weeks is flagged; a build-date ticket (#16) must not depend on an unflagged long-lead part.
 - **Quantities are per unit.** Pack sizes and order quantities belong in the spreadsheet; the BOM says how many go into one instrument.
+- **Every row carries a revision tag.** `Rev` says which hardware revision the row belongs to: `v1` (the current build), `v1-dev` (bench bring-up only), `v1-alt` (qualified substitute for a v1 part), `v2-candidate` (evaluated for the next revision, not in the current build), `legacy` (Kalix design part retired from v1). A revision's parts list is the rows with its tag and status `in use`, `ordered` or `planned`; candidates for a later revision never mix into it.
 - **Tickets cite the BOM.** An issue that changes hardware links the rows it changes in its Data & State Requirements section.
 
 ## Columns
 
-Part | Qty per unit | Purpose (why) | Vendor | Part number | Link | Unit cost | Lead time | Status (in use / alternative / planned / retired) | Owner issue | Notes
+Part | Qty per unit | Purpose (why) | Vendor | Part number | Link | Unit cost | Lead time | Status (in use / ordered / alternative / planned / retired) | Rev | Owner issue | Notes
 
 ## PR checklist
 
