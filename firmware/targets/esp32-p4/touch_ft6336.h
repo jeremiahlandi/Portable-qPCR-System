@@ -1,8 +1,8 @@
 #pragma once
 
-// FT6336 capacitive touch controller on the board I2C bus (issue #11). Polled; the controller's
-// INT and RST lines are not in Waveshare's vendor header (see hardware/PINS.md), so the chip is
-// assumed to be held out of reset by the board and is read on LVGL's input timer.
+// FT6336 capacitive touch controller on the board I2C bus (issue #11). Polled on LVGL's input
+// timer. The board pulls its reset line (GPIO29) low, so touchInit() releases it first; the
+// interrupt line (GPIO50) is not used. See hardware/PINS.md.
 
 namespace qpcr::target {
 

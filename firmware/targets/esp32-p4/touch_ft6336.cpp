@@ -76,6 +76,14 @@ void readCb(lv_indev_t* /*indev*/, lv_indev_data_t* data) {
 } // namespace
 
 bool touchInit() {
+    // TP_RST (GPIO29) has a 10 k pull-down on the board, so the FT6336 is held in reset until we
+    // release it. Pulse low, then high, then give the controller its start-up time (datasheet:
+    // >= 300 ms from reset to first valid I2C access) before probing.
+    pinMode(qpcr::pins::kTouchRst, OUTPUT);
+    digitalWrite(qpcr::pins::kTouchRst, LOW);
+    delay(10);
+    digitalWrite(qpcr::pins::kTouchRst, HIGH);
+    delay(300);
     Wire.begin(qpcr::pins::kI2cSda, qpcr::pins::kI2cScl, kI2cHz);
     Wire.beginTransmission(kAddress);
     present = Wire.endTransmission() == 0;
