@@ -411,7 +411,7 @@ lv_obj_t* uiDeviceBuild() {
     lv_obj_set_flex_flow(content, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(content, 6, 0);
     char line[96];
-    std::snprintf(line, sizeof line, "Firmware  v%s", qpcr::firmwareVersion());
+    std::snprintf(line, sizeof line, "Firmware  v%s", qpcr::firmwareBuild());
     makeLabel(content, line, &lv_font_montserrat_16, theme::kText);
     makeLabel(content, "Controller  ESP32-P4 + ESP32-C6 radio", &lv_font_montserrat_16,
               theme::kText);
