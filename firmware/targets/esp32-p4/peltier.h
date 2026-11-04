@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/thermal/PeltierController.h"
 #include "core/thermal/PeltierDrive.h"
 
 // Peltier H-bridge glue for the ESP32-P4 target (issue #7): the IBT_2 (dual BTS7960) on the J6
@@ -19,5 +20,17 @@ bool peltierInit();
 
 /// The one drive instance. Valid after peltierInit().
 qpcr::thermal::PeltierDrive& peltierDrive();
+
+/// Setpoint ramp limits for the block, C/s. Above the minimum ramp rates issue #7 asks for
+/// (1.5 heating, 1 cooling) so the limiter shapes the approach to a hold without becoming the
+/// bottleneck; to be confirmed against the logged step responses on the bench.
+constexpr double kBlockMaxHeatingRate = 3.0;
+constexpr double kBlockMaxCoolingRate = 2.0;
+
+/// The one control loop, bound to peltierDrive(): ramp -> signed PID -> bridge. Constructed
+/// stopped and never started by the target itself; the run controller starts it once the
+/// safety layer (#5) is in place. The PID gains are zero until the bench autotune (#7) fills
+/// them in, so even a started loop would output 0 for now. Valid after peltierInit().
+qpcr::thermal::PeltierController& peltierController();
 
 } // namespace qpcr::target
