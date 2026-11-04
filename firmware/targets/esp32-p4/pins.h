@@ -44,8 +44,9 @@ constexpr int kI2sDout = 9; // P4 -> codec
 constexpr int kI2sDin = 11; // codec -> P4
 constexpr int kAudioPaEnable = 53;
 
-// Peltier H-bridge, IBT_2 (dual BTS7960) on the J6 header (issue #7). Assigned 2026-11-01, not
-// yet driven by firmware. R_EN and L_EN are wired together to kHBridgeEnable; logic VCC is 3V3.
+// Peltier H-bridge, IBT_2 (dual BTS7960) on the J6 header (issue #7). Assigned 2026-11-01,
+// bench-verified 2026-11-03, driven by peltier.cpp (LEDC 20 kHz, 10-bit). R_EN and L_EN are
+// wired together to kHBridgeEnable; logic VCC is 3V3.
 constexpr int kHBridgePwmHeat = 4;    // RPWM, LEDC
 constexpr int kHBridgePwmCool = 5;    // LPWM, LEDC
 constexpr int kHBridgeEnable = 3;     // R_EN + L_EN

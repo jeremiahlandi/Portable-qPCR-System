@@ -14,10 +14,16 @@ struct PidConfig {
     double maxPower = 1.0;
     /// Minimum time base for the derivative term, seconds (Klipper `smooth_time`).
     double smoothTime = 1.0;
+    /// Lower bound of the control output, in [-1, 0]. Klipper's heater keeps 0 (heat only);
+    /// a bidirectional drive such as the Peltier H-bridge (issue #7) sets -maxPower so that a
+    /// negative output means cool. The integral is bounded to [minPower, maxPower] / ki the
+    /// same way. NaN or positive values fall back to 0.
+    double minPower = 0.0;
 };
 
-/// Heat-only PID with a bounded integral and a smoothed derivative.
-/// Time is in seconds, temperatures in Celsius. Output is in [0, maxPower].
+/// PID with a bounded integral and a smoothed derivative. Heat-only as ported from Klipper;
+/// a negative `minPower` extends the same loop to a signed output (issue #7).
+/// Time is in seconds, temperatures in Celsius. Output is in [minPower, maxPower].
 class Pid {
 public:
     explicit Pid(const PidConfig& config);
@@ -33,8 +39,11 @@ public:
     [[nodiscard]] double lastIntegral() const { return prevTempInteg_; }
     [[nodiscard]] const PidConfig& config() const { return config_; }
 
-    /// Forget all history (fresh start, as if just constructed).
+    /// Forget all history (fresh start, as if just constructed: ambient at time zero).
     void reset();
+    /// Forget all history and continue from `temp` at `readTime`, so a loop that starts late
+    /// in the uptime does not see one huge first time step that winds the integral up.
+    void reset(double readTime, double temp);
 
 private:
     PidConfig config_;
@@ -42,6 +51,7 @@ private:
     double ki_;
     double kd_;
     double tempIntegMax_;
+    double tempIntegMin_;
     double prevTemp_;
     double prevTempTime_ = 0.0;
     double prevTempDeriv_ = 0.0;
