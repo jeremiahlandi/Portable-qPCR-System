@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0](https://github.com/jeremiahlandi/Portable-qPCR-System/compare/v1.1.0...v1.2.0) (2026-11-04)
+
+
+### Features
+
+* **platform:** show build metadata in the on-device version ([#41](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/41)) ([#42](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/42)) ([5e43c05](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/5e43c05e1d6ceefbfd298d7ff8a5ed5c496272ee))
+* **thermal:** bidirectional Peltier H-bridge drive with dead time and duty cap ([#7](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/7)) ([#43](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/43)) ([2b9ec59](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/2b9ec59b85337255f518f8ba9768c986e2850335))
+* **thermal:** signed PID output, setpoint ramp limiter and Peltier controller ([#7](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/7)) ([#45](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/45)) ([f4bcb21](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/f4bcb2149a6b16c59e2a9cd9dbbec19eecfc579a))
+* **ui:** settings with Wi-Fi join, on-screen keyboard, Bluetooth switch and internet time ([#37](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/37)) ([#40](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/40)) ([28a72f9](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/28a72f951633e4d77ddc43d7cd7aa91cfb661fe3))
+
 ## [1.1.0](https://github.com/jeremiahlandi/Portable-qPCR-System/compare/v1.0.0...v1.1.0) (2026-11-04)
 
 
