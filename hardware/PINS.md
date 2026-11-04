@@ -69,7 +69,9 @@ pins down the other.
 | 31 | GND | 32 | GPIO46 |
 
 Usable for instrument signals: GPIO2, 3, 4, 5, 30, 31, 32, 33, 46, 47, 48 (digital / LEDC PWM) and
-GPIO51, 52 (the only ADC-capable header pins, ADC2). Do not use GPIO7/8 (board I2C), GPIO24/25
+GPIO51, 52 (the only ADC-capable header pins, ADC2). After the assignments below only GPIO2 and
+GPIO48 remain free; the status LEDs, buzzer, fan PWM and excitation LED (#13, #7, #18) need an
+I2C GPIO expander on the board bus or a PWM driver, to be decided on #16. Do not use GPIO7/8 (board I2C), GPIO24/25
 (USB OTG), GPIO34/35/36 (strapping; 35 is also BOOT and the CH343 auto-reset line) or the C6 pins.
 
 ### Signals on the free header
@@ -80,8 +82,9 @@ from the J6 table above, keeping the same owners.
 
 | Signal | GPIO | Dir | Board pin / rail | Wire | Owner | Verified |
 | --- | --- | --- | --- | --- | --- | --- |
-| SPI MISO / SCK / MOSI for MAX31865 | tbd | | J6 | | #6 | planned (#6) |
-| MAX31865 CS (block PT1000) | tbd | out | J6 | | #6 | planned (#6) |
+| Sensor SPI SCK / MOSI / MISO (both MAX31865 boards) | 30 / 31 / 32 | bus | J6 pins 17 / 19 / 21 | | #6, #8 | assigned 2026-11-04 (#8); software SPI or a second SPI host, the display owns SPI2 |
+| MAX31865 CS, block PT1000 (Adafruit 3648 no. 1) | 33 | out | J6 pin 23 | | #6 | assigned 2026-11-04 (#8) |
+| MAX31865 CS, lid PT1000 (Adafruit 3648 no. 2) | 46 | out | J6 pin 32 | | #8 | assigned 2026-11-04 (#8) |
 | H-bridge RPWM (heat), IBT_2 / BTS7960 | 4 (LEDC) | out | J6 pin 13 | | #7 | 2026-11-03 bench probe: +25 % of a 15 V supply on M+/M- at 25 % duty, 20 kHz |
 | H-bridge LPWM (cool), IBT_2 / BTS7960 | 5 (LEDC) | out | J6 pin 15 | | #7 | 2026-11-03 bench probe: −25 % of a 15 V supply on M+/M- at 25 % duty, 20 kHz |
 | H-bridge enable (R_EN and L_EN tied together) | 3 | out | J6 pin 11 | | #7 | 2026-11-03 bench probe: output follows enable, ~0 V with enable low |
@@ -89,8 +92,8 @@ from the J6 table above, keeping the same owners.
 | H-bridge L_IS (cool current sense, optional) | 52 (ADC2) | in | J6 pin 22 | | #7 | assigned 2026-11-01 |
 | H-bridge logic VCC / GND | 3V3 / GND | power | J6 pin 1 / pin 3 | | #7 | 2026-11-03 bench probe: VCC at 3V3 drives the module's 74HC244 cleanly; B+/B− from the 15 V supply, Peltier disconnected |
 | Heatsink fan PWM | tbd (LEDC) | out | J6 | | #7 | planned (#7) |
-| Lid heater PWM | tbd (LEDC) | out | J6 | | #8 | planned (#8) |
-| Lid NTC | tbd (ADC2: only 51/52 remain) | in | J6 | | #8 | planned (#8); conflicts with the IS lines if both are wanted |
+| Lid heater PWM, logic-level MOSFET gate (IRLZ44N) | 47 (LEDC) | out | J6 pin 30 | | #8 | assigned 2026-11-04 (#8); 130 °C bimetal cutoff in series with the heater |
+| Lid NTC (legacy ring thermistor) | none | | | | #8 | retired 2026-11-04: lid temperature moves to the second MAX31865 on the sensor SPI bus, leaving GPIO51/52 to the H-bridge current sense |
 | Status LED red / yellow / blue | tbd ×3 | out | J6 | | #13 | planned (#13) |
 | Buzzer | tbd | out | J6 | | #13 | planned (#13) |
 | Excitation LED | tbd | out | J6 | | #18 | planned (#18) |
