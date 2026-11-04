@@ -28,3 +28,10 @@ Use `feat!:`/`fix!:` with a `BREAKING CHANGE:` footer (explaining the blast radi
 Everything else — the vast majority of PRs, including routine bug fixes, new screens, and typical incremental feature work — stays `fix:`/`feat:` (patch/minor). Don't reach for `feat!:` just because a PR touched many files or took a while; reserve it for the "changing the ground the instrument stands on" cases above.
 
 If a PR/commit's real-world impact doesn't match what its type would normally imply, say so explicitly in the commit body/footer rather than silently picking the "safe" prefix — an automated release PR is editable before merge, but only if the reasoning is visible.
+
+## What the device shows
+The on-screen badge and the serial banner print `qpcr::firmwareBuild()`: the release number from `version.txt` plus SemVer build metadata when the build is past the last release tag, `v1.1.0+3.gabc1234` (three commits after v1.1.0, short sha), with `.dirty` for an uncommitted tree. At an exact tag it is the plain release number. The metadata comes from `git describe` in `scripts/version_flags.py`; CI fetches tags for it.
+- A build on a branch or on `main` between releases is identified by its metadata; do not bump `version.txt` by hand to tell builds apart.
+- Before a unit is flashed for PO QA or handed to Kalix, merge the open Release Please PR first so the unit carries a plain release number and a tag that can be checked out later.
+- The release number moves only through the Release Please PR (`feat` → minor, `fix` → patch, `!` → major).
+

@@ -11,6 +11,7 @@
 
 #include "display.h"
 #include "net_wifi.h"
+#include "peltier.h"
 #include "time_sync.h"
 #include "touch_ft6336.h"
 #include "ui_home.h"
@@ -50,10 +51,16 @@ std::uint32_t tickMs() {
 } // namespace
 
 void setup() {
+    // Peltier H-bridge pins go to their safe state before anything else runs. The drive stays
+    // disabled: no control loop commands it yet (#4, #5), so the bridge never drives at boot.
+    const bool peltierOk = qpcr::target::peltierInit();
+
     Serial.begin(115200);
     delay(1000);
     Serial.print("Portable qPCR firmware ");
-    Serial.println(qpcr::firmwareVersion());
+    Serial.println(qpcr::firmwareBuild());
+    Serial.print("Peltier H-bridge: ");
+    Serial.println(peltierOk ? "safe state, drive disabled" : "LEDC attach FAILED, drive inert");
 
     lvglMutex = xSemaphoreCreateMutex();
     lv_init();
