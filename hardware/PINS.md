@@ -29,7 +29,7 @@ Source: Waveshare's Arduino board library for this board,
 | Display RST | 27 | |
 | Display backlight | 28 | LEDC PWM 5 kHz, 10-bit (vendor) |
 | Display SPI MISO | not wired | panel is write-only |
-| Touch controller | FT6336 (FT5x06 family), I2C | INT / RST GPIOs not in the vendor header; read from the schematic before #11 |
+| Touch controller | FT6336 (FT5x06 family), I2C address 0x38 | Polled by LVGL over the board I2C bus (#11); INT / RST not used by firmware and not in the vendor header, held by the board |
 | I2C SDA / SCL | 7 / 8 | board bus: touch, AXP2101 PMIC, ES8311 codec; also on the header |
 | TF card (SDIO 4-bit) CLK / CMD | 43 / 44 | #14 |
 | TF card D0 / D1 / D2 / D3 | 39 / 40 / 41 / 42 | #14 |

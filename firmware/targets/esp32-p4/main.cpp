@@ -1,111 +1,46 @@
 #include <Arduino.h>
 #include <algorithm>
-#define LGFX_USE_V1
-#include <LovyanGFX.hpp>
+#include <cstdint>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+#include <freertos/task.h>
+#include <lvgl.h>
 
 #include "core/Version.h"
-#include "core/ui/VersionBadge.h"
+#include "core/ui/StatusBar.h"
 
-#include "pins.h"
+#include "display.h"
+#include "touch_ft6336.h"
+#include "ui_home.h"
 
 namespace {
 
-// Waveshare ESP32-P4-WIFI6-Touch-LCD-3.5: ST7796 320x480 over SPI, routed by the board.
-// IPS panel (inverted colours) as in Waveshare's Arduino_GFX board library. Their "rotation 4"
-// maps to LovyanGFX offset_rotation 0: with 4 the image came out X-mirrored (verified 2026-11-01).
-class LGFX_P4 : public lgfx::LGFX_Device {
-    lgfx::Panel_ST7796 _panel_instance;
-    lgfx::Bus_SPI _bus_instance;
+// LVGL is not thread-safe: every call goes through this lock. The UI task on the second core
+// runs the timer handler; loop() on core 0 only pushes state (issue #11, acceptance criterion 3).
+SemaphoreHandle_t lvglMutex = nullptr;
+bool uiEnabled = false;
 
+class LvglLock {
 public:
-    LGFX_P4() {
-        auto cfg = _bus_instance.config();
-        cfg.spi_host = SPI2_HOST;
-        cfg.spi_mode = 0;
-        cfg.freq_write = 40000000; // vendor uses 80 MHz; start conservative
-        cfg.freq_read = 16000000;
-        cfg.pin_sclk = qpcr::pins::kDisplaySck;
-        cfg.pin_mosi = qpcr::pins::kDisplayMosi;
-        cfg.pin_miso = qpcr::pins::kDisplayMiso;
-        cfg.pin_dc = qpcr::pins::kDisplayDc;
-        _bus_instance.config(cfg);
-        _panel_instance.setBus(&_bus_instance);
-
-        auto p_cfg = _panel_instance.config();
-        p_cfg.pin_cs = qpcr::pins::kDisplayCs;
-        p_cfg.pin_rst = qpcr::pins::kDisplayRst;
-        p_cfg.pin_busy = -1;
-        p_cfg.panel_width = 320;
-        p_cfg.panel_height = 480;
-        p_cfg.offset_rotation = 0;
-        p_cfg.invert = true;
-        p_cfg.rgb_order = false;
-        p_cfg.readable = false;
-        p_cfg.bus_shared = false;
-        _panel_instance.config(p_cfg);
-        setPanel(&_panel_instance);
-    }
+    LvglLock() { xSemaphoreTake(lvglMutex, portMAX_DELAY); }
+    ~LvglLock() { xSemaphoreGive(lvglMutex); }
+    LvglLock(const LvglLock&) = delete;
+    LvglLock& operator=(const LvglLock&) = delete;
 };
 
-LGFX_P4 lcd;
-
-// Backlight: LEDC PWM at 5 kHz, 10-bit, as in the vendor library.
-void setBacklight(uint8_t percent) {
-    static bool attached = false;
-    if (!attached) {
-        attached = ledcAttach(qpcr::pins::kDisplayBacklight, 5000, 10);
-    }
-    if (attached) {
-        ledcWrite(qpcr::pins::kDisplayBacklight, (1023U * std::min<uint8_t>(percent, 100)) / 100U);
+void lvglTask(void* /*unused*/) {
+    for (;;) {
+        std::uint32_t waitMs = 5;
+        {
+            LvglLock lock;
+            waitMs = lv_timer_handler();
+        }
+        vTaskDelay(pdMS_TO_TICKS(std::max<std::uint32_t>(1, std::min<std::uint32_t>(waitMs, 20))));
     }
 }
 
-// Firmware version in the bottom-right corner of every screen (issue #28). Uses the
-// display's reported size, so it stays in the corner after setRotation().
-void drawVersionBadge() {
-    char label[32];
-    qpcr::ui::versionBadgeLabel(label, sizeof label, qpcr::firmwareVersion());
-    lcd.setTextSize(2);
-    lcd.setTextColor(TFT_WHITE, TFT_BLACK);
-    const qpcr::ui::TextMetrics metrics{static_cast<int>(lcd.textWidth(label)),
-                                        static_cast<int>(lcd.fontHeight())};
-    const qpcr::ui::Point origin = qpcr::ui::versionBadgeOrigin(lcd.width(), lcd.height(), metrics);
-    lcd.setCursor(origin.x, origin.y);
-    lcd.print(label);
-}
-
-void drawBringUpScreen() {
-    lcd.setRotation(1); // landscape, 480x320
-    lcd.fillScreen(TFT_BLACK);
-
-    lcd.setTextColor(TFT_WHITE);
-    lcd.setTextSize(3);
-    lcd.setCursor(20, 20);
-    lcd.print("SYSTEM VERIFIED");
-
-    lcd.setTextColor(TFT_GREEN);
-    lcd.setCursor(20, 80);
-    lcd.print("Brain: ONLINE");
-
-    lcd.setTextColor(TFT_BLUE);
-    lcd.setCursor(20, 140);
-    lcd.print("Screen: ST7796");
-
-    // Colour-order and orientation check: R, G, B bars along the bottom, marker at the origin.
-    lcd.fillRect(20, 260, 140, 40, TFT_RED);
-    lcd.fillRect(170, 260, 140, 40, TFT_GREEN);
-    lcd.fillRect(320, 260, 140, 40, TFT_BLUE);
-    lcd.setTextSize(1);
-    lcd.setTextColor(TFT_BLACK);
-    lcd.setCursor(24, 276);
-    lcd.print("RED");
-    lcd.setCursor(174, 276);
-    lcd.print("GREEN");
-    lcd.setCursor(324, 276);
-    lcd.print("BLUE");
-    lcd.fillTriangle(0, 0, 16, 0, 0, 16, TFT_YELLOW); // top-left origin marker
-
-    drawVersionBadge();
+std::uint32_t tickMs() {
+    return static_cast<std::uint32_t>(millis());
 }
 
 } // namespace
@@ -116,16 +51,44 @@ void setup() {
     Serial.print("Portable qPCR firmware ");
     Serial.println(qpcr::firmwareVersion());
 
-    setBacklight(0);
-    const bool ok = lcd.init();
+    lvglMutex = xSemaphoreCreateMutex();
+    lv_init();
+    lv_tick_set_cb(tickMs);
+
+    const bool displayOk = qpcr::target::displayInit();
     Serial.print("Display init: ");
-    Serial.println(ok ? "OK (ST7796)" : "FAILED");
-    if (ok) {
-        drawBringUpScreen();
-        setBacklight(100);
+    Serial.println(displayOk ? "OK (ST7796, LVGL)" : "FAILED, running without UI");
+    if (!displayOk) {
+        return;
     }
+
+    const bool touchOk = qpcr::target::touchInit();
+    Serial.print("Touch init: ");
+    Serial.println(touchOk ? "OK (FT6336)" : "not found, display only");
+    qpcr::target::touchAttachToLvgl();
+
+    {
+        LvglLock lock;
+        qpcr::target::uiHomeCreate();
+    }
+    qpcr::target::displaySetBacklight(100);
+    uiEnabled = true;
+    xTaskCreatePinnedToCore(lvglTask, "lvgl", 8192, nullptr, 2, nullptr, 1);
 }
 
 void loop() {
-    delay(1000);
+    // Status bar demo state: clock from uptime until an RTC and the radios exist (#14, #15).
+    static std::uint32_t lastSecond = 0;
+    const std::uint32_t now = millis() / 1000U;
+    if (uiEnabled && now != lastSecond) {
+        lastSecond = now;
+        qpcr::ui::StatusBarState state;
+        state.secondsOfDay = now;
+        state.wifiConnected = false;
+        state.bluetoothConnected = false;
+        state.batteryPercent = -1;
+        LvglLock lock;
+        qpcr::target::uiHomeSetStatus(state);
+    }
+    delay(50);
 }
