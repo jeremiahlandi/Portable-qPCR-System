@@ -49,7 +49,7 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
     Serial.print("Portable qPCR firmware ");
-    Serial.println(qpcr::firmwareVersion());
+    Serial.println(qpcr::firmwareBuild());
 
     lvglMutex = xSemaphoreCreateMutex();
     lv_init();

@@ -136,7 +136,7 @@ void buildTiles(lv_obj_t* screen) {
 
 void buildVersionBadge(lv_obj_t* screen) {
     char text[32];
-    qpcr::ui::versionBadgeLabel(text, sizeof text, qpcr::firmwareVersion());
+    qpcr::ui::versionBadgeLabel(text, sizeof text, qpcr::firmwareBuild());
     lv_obj_t* label = lv_label_create(screen);
     lv_label_set_text(label, text);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_14, 0);
