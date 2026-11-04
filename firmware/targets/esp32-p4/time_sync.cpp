@@ -31,7 +31,7 @@ void applyZone() {
 }
 
 bool localNow(struct tm& out) {
-    const time_t now = time(nullptr);
+    const time_t now = ::time(nullptr);
     if (now < kSyncedAfter) {
         return false;
     }
@@ -72,7 +72,7 @@ void timeSetZone(std::size_t index) {
 }
 
 bool timeSynced() {
-    return time(nullptr) >= kSyncedAfter;
+    return ::time(nullptr) >= kSyncedAfter;
 }
 
 std::uint32_t timeSecondsOfDay() {
