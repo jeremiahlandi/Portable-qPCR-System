@@ -82,12 +82,12 @@ from the J6 table above, keeping the same owners.
 | --- | --- | --- | --- | --- | --- | --- |
 | SPI MISO / SCK / MOSI for MAX31865 | tbd | | J6 | | #6 | planned (#6) |
 | MAX31865 CS (block PT1000) | tbd | out | J6 | | #6 | planned (#6) |
-| H-bridge RPWM (heat), IBT_2 / BTS7960 | 4 (LEDC) | out | J6 pin 13 | | #7 | assigned 2026-11-01, not yet driven |
-| H-bridge LPWM (cool), IBT_2 / BTS7960 | 5 (LEDC) | out | J6 pin 15 | | #7 | assigned 2026-11-01, not yet driven |
-| H-bridge enable (R_EN and L_EN tied together) | 3 | out | J6 pin 11 | | #7 | assigned 2026-11-01, not yet driven |
+| H-bridge RPWM (heat), IBT_2 / BTS7960 | 4 (LEDC) | out | J6 pin 13 | | #7 | 2026-11-03 bench probe: +25 % of a 15 V supply on M+/M- at 25 % duty, 20 kHz |
+| H-bridge LPWM (cool), IBT_2 / BTS7960 | 5 (LEDC) | out | J6 pin 15 | | #7 | 2026-11-03 bench probe: −25 % of a 15 V supply on M+/M- at 25 % duty, 20 kHz |
+| H-bridge enable (R_EN and L_EN tied together) | 3 | out | J6 pin 11 | | #7 | 2026-11-03 bench probe: output follows enable, ~0 V with enable low |
 | H-bridge R_IS (heat current sense, optional) | 51 (ADC2) | in | J6 pin 20 | | #7 | assigned 2026-11-01 |
 | H-bridge L_IS (cool current sense, optional) | 52 (ADC2) | in | J6 pin 22 | | #7 | assigned 2026-11-01 |
-| H-bridge logic VCC / GND | 3V3 / GND | power | J6 pin 1 / pin 3 | | #7 | VCC at 3V3 so the module's 74HC244 switches on 3.3 V logic |
+| H-bridge logic VCC / GND | 3V3 / GND | power | J6 pin 1 / pin 3 | | #7 | 2026-11-03 bench probe: VCC at 3V3 drives the module's 74HC244 cleanly; B+/B− from the 15 V supply, Peltier disconnected |
 | Heatsink fan PWM | tbd (LEDC) | out | J6 | | #7 | planned (#7) |
 | Lid heater PWM | tbd (LEDC) | out | J6 | | #8 | planned (#8) |
 | Lid NTC | tbd (ADC2: only 51/52 remain) | in | J6 | | #8 | planned (#8); conflicts with the IS lines if both are wanted |

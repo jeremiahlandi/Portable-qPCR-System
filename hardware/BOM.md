@@ -32,7 +32,7 @@ Status: `in use` = in the current design, `planned` = chosen by an issue but not
 | NTC ring thermistor 10 kΩ, wire leaded | 1 | Lid temperature | Newark | Molex 213860-1637 | | 5.36 | | in use | #8 | |
 | MAX6675 module + K-type thermocouple | 1 | Block temperature for bring-up only (1 °C integer, ±2 °C) | SainSmart | 101-60-176 | | 9.99 | | alternative | #6 | Replaced by PT1000 + MAX31865 for the product |
 | PT1000 RTD + MAX31865 breakout | 1 | Block temperature, 0.1 °C | | | | | | planned | #6 | |
-| H-bridge driver, BTS7960 class | 1 | Bidirectional Peltier drive so the PID can cool | | | | | | planned | #7 | Replaces the relay polarity switch |
+| H-bridge driver IBT_2 (HW-039), dual BTS7960, 43 A | 1 | Bidirectional Peltier drive so the PID can cool | Amazon | HW-039 / IBT_2 | | | on hand | in use | #7 | Replaces the relay polarity switch. Logic VCC on 3V3. Bench-verified 2026-11-03 on GPIO3/4/5 (PINS.md) |
 | LC filter for the bridge output (≈47 µH, 470 µF) | 1 | Low-ripple TEC current | | | | | | planned | #7 | |
 | Heat block, aluminium, drilled for 0.2 ml tubes | 1 | Sample block | custom | | | | | planned | #16 | Well format decision pending |
 
