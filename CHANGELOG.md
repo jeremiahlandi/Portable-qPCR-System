@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/jeremiahlandi/Portable-qPCR-System/compare/v1.0.0...v1.1.0) (2026-11-04)
+
+
+### Features
+
+* **ui:** LVGL home screen with status bar, launcher tiles and touch ([#11](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/11)) ([#36](https://github.com/jeremiahlandi/Portable-qPCR-System/issues/36)) ([f90fabf](https://github.com/jeremiahlandi/Portable-qPCR-System/commit/f90fabfbdcfe43f13d6092914a7b2dafbbc26dd9))
+
 ## 1.0.0 (2026-11-02)
 
 
