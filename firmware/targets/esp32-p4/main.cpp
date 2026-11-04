@@ -10,9 +10,13 @@
 #include "core/ui/StatusBar.h"
 
 #include "display.h"
+#include "net_wifi.h"
 #include "peltier.h"
+#include "time_sync.h"
 #include "touch_ft6336.h"
 #include "ui_home.h"
+#include "ui_settings.h"
+#include "ui_statusbar.h"
 
 namespace {
 
@@ -62,6 +66,9 @@ void setup() {
     lv_init();
     lv_tick_set_cb(tickMs);
 
+    qpcr::target::netInit();
+    qpcr::target::timeInit();
+
     const bool displayOk = qpcr::target::displayInit();
     Serial.print("Display init: ");
     Serial.println(displayOk ? "OK (ST7796, LVGL)" : "FAILED, running without UI");
@@ -80,22 +87,26 @@ void setup() {
     }
     qpcr::target::displaySetBacklight(100);
     uiEnabled = true;
-    xTaskCreatePinnedToCore(lvglTask, "lvgl", 8192, nullptr, 2, nullptr, 1);
+    xTaskCreatePinnedToCore(lvglTask, "lvgl", 12288, nullptr, 2, nullptr, 1);
 }
 
 void loop() {
-    // Status bar demo state: clock from uptime until an RTC and the radios exist (#14, #15).
-    static std::uint32_t lastSecond = 0;
-    const std::uint32_t now = millis() / 1000U;
-    if (uiEnabled && now != lastSecond) {
-        lastSecond = now;
+    qpcr::target::netPoll();
+    qpcr::target::timePoll();
+
+    static std::uint32_t lastUiMs = 0;
+    const std::uint32_t nowMs = millis();
+    if (uiEnabled && nowMs - lastUiMs >= 500U) {
+        lastUiMs = nowMs;
         qpcr::ui::StatusBarState state;
-        state.secondsOfDay = now;
-        state.wifiConnected = false;
-        state.bluetoothConnected = false;
-        state.batteryPercent = -1;
+        state.secondsOfDay = qpcr::target::timeSecondsOfDay();
+        state.wifiConnected = qpcr::target::netState() == qpcr::net::ConnectState::Connected;
+        state.bluetoothConnected =
+            qpcr::target::netBluetoothEnabled() && qpcr::target::netBluetoothSupported();
+        state.batteryPercent = -1; // no gauge yet; the unit runs from the wall supply
         LvglLock lock;
-        qpcr::target::uiHomeSetStatus(state);
+        qpcr::target::uiStatusBarUpdate(state);
+        qpcr::target::uiSettingsPoll();
     }
-    delay(50);
+    delay(20);
 }
